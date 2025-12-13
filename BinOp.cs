@@ -29,4 +29,14 @@ public class BinOp : Expr {
                 throw new Exception("Operazione sconosciuta: " + kind);
         }
     }
+
+    public static BinOp.Kind fromSymbol(char c) {
+        switch (c) {
+            case '+': return Kind.SUM;
+            case '-': return Kind.SUB;
+            case '*': return Kind.MUL;
+            case '/': return Kind.DIV;
+        }
+        throw new Exception("Unkown BinOp symbol: " + c);
+    }
 }

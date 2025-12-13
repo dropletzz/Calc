@@ -1,18 +1,24 @@
-﻿Expr parseExpr(string s) {
+﻿// simboli consentiti per operazioni binarie
+char[] BINOP_SYMBOLS = { '+', '-', '*', '/' };
+
+Expr parseExpr(string s) {
     s = s.Trim(); // tolgo spazi inizali e finali da s
 
     double value;
     bool isLiteral = Double.TryParse(s, out value);
     if (isLiteral)       return new Literal(value);
-    if (s.Contains('+')) return parseBinOp('+', BinOp.Kind.SUM, s);
-    if (s.Contains('-')) return parseBinOp('-', BinOp.Kind.SUB, s);
-    if (s.Contains('*')) return parseBinOp('*', BinOp.Kind.MUL, s);
-    if (s.Contains('/')) return parseBinOp('/', BinOp.Kind.DIV, s);
+    foreach (char sym in BINOP_SYMBOLS) {
+        int index = s.IndexOf(sym);
+        if (index > 0 && index < s.Length-1) {
+            return parseBinOp(sym, index, s);
+        }
+    }
 
     throw new Exception("Espressione non calcolabile");
 }
 
-BinOp parseBinOp(char symbol, BinOp.Kind kind, string s) {
+BinOp parseBinOp(char symbol, int symbolIndex, string s) {
+    BinOp.Kind kind = BinOp.fromSymbol(symbol);
     string[] split = s.Split(symbol, 2);
     Expr l = parseExpr(split[0]);
     Expr r = parseExpr(split[1]);
