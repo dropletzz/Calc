@@ -4,19 +4,32 @@
     double value;
     bool isLiteral = Double.TryParse(s, out value);
     if (isLiteral)       return new Literal(value);
-    if (s.Contains('+')) return parseBinOp(s, '+', BinOp.Kind.SUM); // << precedenza bassa
-    if (s.Contains('-')) return parseBinOp(s, '-', BinOp.Kind.SUB);
-    if (s.Contains('*')) return parseBinOp(s, '*', BinOp.Kind.MUL);
-    if (s.Contains('/')) return parseBinOp(s, '/', BinOp.Kind.DIV); // >> precedenza alta
+    if (s.Contains('+')) {
+        string[] split = s.Split('+', 2); // divido la stringa in due dove trovo il simbolo
+        Expr l = parseExpr(split[0]);
+        Expr r = parseExpr(split[1]);
+        return new BinOp(BinOp.Kind.SUM, l, r);
+    }
+    if (s.Contains('-')) {
+        string[] split = s.Split('-', 2);
+        Expr l = parseExpr(split[0]);
+        Expr r = parseExpr(split[1]);
+        return new BinOp(BinOp.Kind.SUB, l, r);
+    }
+    if (s.Contains('*')) {
+        string[] split = s.Split('*', 2);
+        Expr l = parseExpr(split[0]);
+        Expr r = parseExpr(split[1]);
+        return new BinOp(BinOp.Kind.MUL, l, r);
+    }
+    if (s.Contains('/')) {
+        string[] split = s.Split('/', 2);
+        Expr l = parseExpr(split[0]);
+        Expr r = parseExpr(split[1]);
+        return new BinOp(BinOp.Kind.DIV, l, r);
+    }
 
     throw new Exception("Espressione non calcolabile");
-}
-
-BinOp parseBinOp(string s, char symbol, BinOp.Kind kind) {
-    string[] split = s.Split(symbol, 2); // divido la stringa in due dove trovo il simbolo
-    Expr l = parseExpr(split[0]);
-    Expr r = parseExpr(split[1]);
-    return new BinOp(kind, l, r);
 }
 
 string s = "12 / 3.7 + 2 * 0.5";
