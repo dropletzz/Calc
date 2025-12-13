@@ -9,4 +9,8 @@ public class Literal : Expr {
     public double eval() {
         return value;
     }
+
+    public override string ToString() {
+        return "" + value;
+    }
 }

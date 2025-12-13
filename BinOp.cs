@@ -1,4 +1,4 @@
-
+// Operatore binario (con due argomenti: l e r)
 public class BinOp : Expr {
     
     public enum Kind {
@@ -17,26 +17,25 @@ public class BinOp : Expr {
 
     public double eval() {
         switch (kind) {
-            case Kind.SUM:
-                return l.eval() + r.eval();
-            case Kind.SUB:
-                return l.eval() - r.eval();
-            case Kind.MUL:
-                return l.eval() * r.eval();
-            case Kind.DIV:
-                return l.eval() / r.eval();
-            default:
-                throw new Exception("Operazione sconosciuta: " + kind);
+            case Kind.SUM: return l.eval() + r.eval();
+            case Kind.SUB: return l.eval() - r.eval();
+            case Kind.MUL: return l.eval() * r.eval();
+            case Kind.DIV: return l.eval() / r.eval();
         }
+        throw new Exception("UNIMPLEMENTED: eval for BinOp.Kind" + kind);
     }
 
-    public static BinOp.Kind kindFromSymbol(char c) {
+    public static Kind kindFromSymbol(char c) {
         switch (c) {
             case '+': return Kind.SUM;
             case '-': return Kind.SUB;
             case '*': return Kind.MUL;
             case '/': return Kind.DIV;
         }
-        throw new Exception("Unkown BinOp symbol: " + c);
+        throw new Exception("UNIMPLEMENTED: BinOp.kindFromSymbol for '" + c + "'");
+    }
+
+    public override string ToString() {
+        return "(" + l + " " + kind + " " + r + ")";
     }
 }
