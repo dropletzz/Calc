@@ -30,7 +30,7 @@ public class BinOp : Expr {
         }
     }
 
-    public static BinOp.Kind fromSymbol(char c) {
+    public static BinOp.Kind kindFromSymbol(char c) {
         switch (c) {
             case '+': return Kind.SUM;
             case '-': return Kind.SUB;

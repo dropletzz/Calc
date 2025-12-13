@@ -18,10 +18,14 @@ Expr parseExpr(string s) {
 }
 
 BinOp parseBinOp(char symbol, int symbolIndex, string s) {
-    BinOp.Kind kind = BinOp.fromSymbol(symbol);
+    BinOp.Kind kind = BinOp.kindFromSymbol(symbol);
+
     string[] split = s.Split(symbol, 2);
-    Expr l = parseExpr(split[0]);
-    Expr r = parseExpr(split[1]);
+    string beforeSymbol = s.Substring(0, symbolIndex);
+    string afterSymbol = s.Substring(symbolIndex + 1);
+
+    Expr l = parseExpr(beforeSymbol);
+    Expr r = parseExpr(afterSymbol);
     return new BinOp(kind, l, r);
 }
 
