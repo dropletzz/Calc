@@ -15,8 +15,8 @@ public class UnOp : Expr {
 
     public double eval() {
         switch (kind) {
-            case Kind.LOG: return arg.eval() * 2;
-            case Kind.SIN: return arg.eval() / 2;
+            case Kind.LOG: return Math.Log(arg.eval());
+            case Kind.SIN: return Math.Sin(arg.eval());
         }
         throw new Exception("UNIMPLEMENTED: eval for UnOp.Kind" + kind);
     }
