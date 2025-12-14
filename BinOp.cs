@@ -1,5 +1,8 @@
 // Operatore binario (con due argomenti: l e r)
 public class BinOp : Expr {
+    // Simboli consentiti per operazioni binarie.
+    // Precedenza:                   bassa >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> alta 
+    public static readonly string[] SYMBOLS = { "+", "plus", "-", "minus", "*", "times", "/", "by", "^" };
     
     public enum Kind {
         SUM, SUB, MUL, DIV, POW

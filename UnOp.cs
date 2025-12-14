@@ -1,5 +1,8 @@
 // Operatore unario (con 1 argomento)
 public class UnOp : Expr {
+    // Simboli consentiti per operazioni unarie.
+    // Precedenza:                   bassa >>>>> alta 
+    public static readonly string[] SYMBOLS = { "log", "sin" };
     
     public enum Kind {
         LOG, SIN
