@@ -1,12 +1,12 @@
 // Analizzatore sintattico
-public class Syn {
+public static class Syn {
     // Simboli consentiti per operazioni unarie.
     // Precedenza: bassa >>>>>>>>>>>>>>> alta 
     private static string[] UNOP_SYMBOLS = { "log", "sin" };
 
     // Simboli consentiti per operazioni binarie.
     // Precedenza: bassa >>>>>>>>>>>>>>>>>>>> alta 
-    private static string[] BINOP_SYMBOLS = { "+", "-", "*", "/", "^" };
+    private static string[] BINOP_SYMBOLS = { "+", "plus", "-", "minus", "*", "times", "/", "by", "^" };
 
     public static Expr parseExpr(string s) {
         s = s.Trim(); // tolgo spazi inizali e finali da s
@@ -39,7 +39,7 @@ public class Syn {
             }
         }
 
-        throw new Exception("Could not parse expression: " + s);
+        throw new Error("Could not parse expression '" + s + "'");
     }
 
     private static BinOp parseBinOp(string symbol, int symbolIndex, string s) {
@@ -51,5 +51,13 @@ public class Syn {
         Expr l = parseExpr(beforeSymbol);
         Expr r = parseExpr(afterSymbol);
         return new BinOp(kind, l, r);
+    }
+
+    public class Error : Exception {
+        public string message = "";
+
+        public Error(string message) {
+            this.message = message;
+        }
     }
 }

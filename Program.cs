@@ -6,6 +6,7 @@
     "3/ ",
     "log 10 * 2 - sin 20 - 7 log",
     "log * 10 * 2 - sin 20 - 7 ",
+    "3 plus 7 by 10",
 };
 
 Console.WriteLine("---------------------");
@@ -15,9 +16,8 @@ foreach (string test in tests) {
         Expr expr = Syn.parseExpr(test);
         Console.WriteLine("= " + expr.eval());
         Console.WriteLine(expr.ToString());
-    } catch (Exception e) {
-        Console.WriteLine("= Syntax error");
-        // Console.WriteLine(e.ToString());
+    } catch (Syn.Error e) {
+        Console.WriteLine("= Syntax error: " + e.message);
     }
     Console.WriteLine("---------------------");
 }

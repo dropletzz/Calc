@@ -28,11 +28,11 @@ public class BinOp : Expr {
 
     public static Kind kindFromSymbol(string c) {
         switch (c) {
-            case "+": return Kind.SUM;
-            case "-": return Kind.SUB;
-            case "*": return Kind.MUL;
-            case "/": return Kind.DIV;
-            case "^": return Kind.POW;
+            case "+": case "plus":  return Kind.SUM;
+            case "-": case "minus": return Kind.SUB;
+            case "*": case "times": return Kind.MUL;
+            case "/": case "by":    return Kind.DIV;
+            case "^":               return Kind.POW;
         }
         throw new Exception("UNIMPLEMENTED: BinOp.kindFromSymbol for '" + c + "'");
     }
