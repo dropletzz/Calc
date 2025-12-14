@@ -6,7 +6,7 @@ public class Syn {
 
     // Simboli consentiti per operazioni binarie.
     // Precedenza: bassa >>>>>>>>>>>>>>>>>>>> alta 
-    private static char[] BINOP_SYMBOLS = { '+', '-', '*', '/' };
+    private static string[] BINOP_SYMBOLS = { "+", "-", "*", "/", "^" };
 
     public static Expr parseExpr(string s) {
         s = s.Trim(); // tolgo spazi inizali e finali da s
@@ -17,7 +17,7 @@ public class Syn {
         if (isLiteral) return new Literal(value);
 
         // Operatori binari
-        foreach (char sym in BINOP_SYMBOLS) {
+        foreach (string sym in BINOP_SYMBOLS) {
             int index = s.LastIndexOf(sym);
             if (index > 0 && index < s.Length-1) {
                 return parseBinOp(sym, index, s);
@@ -42,12 +42,11 @@ public class Syn {
         throw new Exception("Could not parse expression: " + s);
     }
 
-    private static BinOp parseBinOp(char symbol, int symbolIndex, string s) {
+    private static BinOp parseBinOp(string symbol, int symbolIndex, string s) {
         BinOp.Kind kind = BinOp.kindFromSymbol(symbol);
 
-        string[] split = s.Split(symbol, 2);
         string beforeSymbol = s.Substring(0, symbolIndex);
-        string afterSymbol = s.Substring(symbolIndex + 1);
+        string afterSymbol = s.Substring(symbolIndex + symbol.Length);
 
         Expr l = parseExpr(beforeSymbol);
         Expr r = parseExpr(afterSymbol);
