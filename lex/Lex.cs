@@ -1,5 +1,7 @@
-
 public static class Lex {
+    // if there's a symbol that's the substring of another symbol
+    // the lexer will most likely mess up
+    // should probably check that invariant at runtime (but when?)
     public static readonly string[] SYMBOLS = { "+", "plus", "-", "minus", "*", "times", "/", "by", "^", "log", "sin", "(", ")" };
 
     public static Token[] tokenize(string s, out int tokensLength) {
