@@ -1,7 +1,7 @@
 
 public class Token {
     public enum Kind {
-        NUMBER, PLUS_SIGN, PLUS, DASH, MINUS, SLASH, BY, ASTERISK, TIMES, TICK, LOG, SIN
+        NUMBER, PLUS_SIGN, PLUS, DASH, MINUS, SLASH, BY, ASTERISK, TIMES, TICK, LOG, SIN, OPAR, CPAR
     }
     public readonly Kind kind;
     public readonly int position; // where the token begins in the input string
@@ -35,6 +35,8 @@ public class Token {
             case "^":     kind = Kind.TICK; break;
             case "log":   kind = Kind.LOG; break;
             case "sin":   kind = Kind.SIN; break;
+            case "(":     kind = Kind.OPAR; break;
+            case ")":     kind = Kind.CPAR; break;
         }
         if (kind != Kind.NUMBER) return new Token(kind, position, raw);
 

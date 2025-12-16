@@ -16,21 +16,41 @@ public static class Syn {
                 throw new Syn.Error("Expected a literal", firstToken.position);
         }
 
-        // cerca operatori binari e unari
-        int binOpIndex = -1, binOpPriority = -1, unOpIndex = -1;
+        Token lastToken = tokens[start+len-1];
+        if (firstToken.kind == Token.Kind.OPAR
+            && lastToken.kind == Token.Kind.CPAR
+        ) return parseExpr(tokens, start + 1, len - 2);
+
+        int binOpIndex = -1, binOpPriority = -1, binOpParLevel = 1000;
+        int unOpIndex = -1, unOpParLevel = 1000;
+        int parLevel = 0, firstOparIndex = -1;
         for (int i = start; i < start+len; i++) {
-            if (isBinOp(tokens[i])) {
+            if (tokens[i].kind == Token.Kind.OPAR && firstOparIndex < 0) firstOparIndex = i;
+            if (tokens[i].kind == Token.Kind.OPAR) parLevel++;
+            else if (tokens[i].kind == Token.Kind.CPAR) parLevel--;
+            else if (isBinOp(tokens[i])) {
                 int newPriority = BinOp.priorityFor(tokens[i]);
-                if (newPriority > binOpPriority) {
+
+                if (parLevel < binOpParLevel || 
+                    (parLevel == binOpParLevel &&
+                    newPriority > binOpPriority)
+                ) {
                     binOpIndex = i;
+                    binOpParLevel = parLevel;
                     binOpPriority = newPriority;
                 }
             }
-            if (unOpIndex < 0 && isUnOp(tokens[i])) unOpIndex = i;
+            if (unOpIndex < 0 && isUnOp(tokens[i]) && parLevel < unOpParLevel) {
+                unOpIndex = i;
+                unOpParLevel = parLevel;
+            }
+
+            if (parLevel < 0) throw new Syn.Error("Parenthesis never opened", tokens[i].position);
         }
+        if (parLevel > 0) throw new Syn.Error("Parenthesis never closed", tokens[firstOparIndex].position);
 
         // Operatori binari
-        if (binOpIndex >= 0) {
+        if (binOpIndex >= 0 && !(unOpIndex >= 0 && unOpParLevel < binOpParLevel)) {
             if (binOpIndex == start || binOpIndex == start+len-1)
                 throw new Syn.Error("Binary operator misses an argument", tokens[binOpIndex].position);
 

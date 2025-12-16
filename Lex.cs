@@ -1,6 +1,6 @@
 
 public static class Lex {
-    public static readonly string[] SYMBOLS = { "+", "plus", "-", "minus", "*", "times", "/", "by", "^", "log", "sin" };
+    public static readonly string[] SYMBOLS = { "+", "plus", "-", "minus", "*", "times", "/", "by", "^", "log", "sin", "(", ")" };
 
     public static Token[] tokenize(string s, out int tokensLength) {
         int position = 0;
