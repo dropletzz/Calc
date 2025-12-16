@@ -1,4 +1,4 @@
-// Operatore unario (con 1 argomento)
+// A unary operator (takes 1 argument)
 public class UnOp : Expr {
     
     public enum Kind {
@@ -18,7 +18,7 @@ public class UnOp : Expr {
             case Kind.LOG: return Math.Log(arg.eval());
             case Kind.SIN: return Math.Sin(arg.eval());
         }
-        throw new Exception("UNIMPLEMENTED: eval for UnOp.Kind" + kind);
+        throw new Exception("UnOp.eval unimplemented for " + kind);
     }
 
     public static Kind kindFromToken(Token t) {
@@ -30,6 +30,6 @@ public class UnOp : Expr {
     }
 
     public override string ToString() {
-        return kind + "(" + arg.ToString() + ")";
+        return kind + "(" + arg + ")";
     }
 }

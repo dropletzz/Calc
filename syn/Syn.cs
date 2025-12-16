@@ -1,4 +1,4 @@
-// Analizzatore sintattico
+// Syntactic analyzer
 public static class Syn {
 
     public static Expr parse(Token[] tokens, int len) {
@@ -8,7 +8,7 @@ public static class Syn {
     private static Expr parseExpr(Token[] tokens, int start, int len) {
         Token firstToken = tokens[start];
 
-        // Valori letterali
+        // parse Literal
         if (len == 1) {
             if (firstToken.kind == Token.Kind.NUMBER)
                 return new Literal(firstToken.value);
@@ -16,11 +16,14 @@ public static class Syn {
                 throw new Syn.Error("Expected a literal", firstToken.position);
         }
 
+        // parentheses removal
         Token lastToken = tokens[start+len-1];
         if (firstToken.kind == Token.Kind.OPAR
             && lastToken.kind == Token.Kind.CPAR
         ) return parseExpr(tokens, start + 1, len - 2);
 
+        // find candidate UnOp and BinOp to parse
+        // based on (parentheses) and BinOp priority
         int binOpIndex = -1, binOpPriority = -1, binOpParLevel = 1000;
         int unOpIndex = -1, unOpParLevel = 1000;
         int parLevel = 0, firstOparIndex = -1;
@@ -30,18 +33,17 @@ public static class Syn {
             if (tokens[i].kind == Token.Kind.OPAR) parLevel++;
             else if (tokens[i].kind == Token.Kind.CPAR) parLevel--;
             else if (isUnOp(tokens[i]) && parLevel < unOpParLevel) {
-                // find unop at lowest parLevel
+                // find UnOp at lowest parentheses level
                 unOpIndex = i;
                 unOpParLevel = parLevel;
             }
             else if (isBinOp(tokens[i])) {
-                // find binop at lowest parLevel
-                // if parLevel is the same find at lowest proprity
+                // find BinOp at lowest parentheses level
+                // if parentheses level is the same, find at lowest proprity
                 int newPriority = BinOp.priorityFor(tokens[i]);
 
                 if (parLevel < binOpParLevel || 
-                    (parLevel == binOpParLevel &&
-                    newPriority < binOpPriority)
+                    (parLevel == binOpParLevel && newPriority < binOpPriority)
                 ) {
                     binOpIndex = i;
                     binOpParLevel = parLevel;
@@ -53,7 +55,7 @@ public static class Syn {
         }
         if (parLevel > 0) throw new Syn.Error("Parenthesis never closed", tokens[firstOparIndex].position);
 
-        // Operatori binari
+        // parse BinOp
         if (binOpIndex >= 0 && !(unOpIndex >= 0 && unOpParLevel < binOpParLevel)) {
             if (binOpIndex == start || binOpIndex == start+len-1)
                 throw new Syn.Error("Binary operator misses an argument", tokens[binOpIndex].position);
@@ -63,7 +65,7 @@ public static class Syn {
             return new BinOp(BinOp.kindFromToken(tokens[binOpIndex]), lhs, rhs);
         }
 
-        // Operatori unari
+        // parse UnOp
         if (unOpIndex >= 0) {
             if (unOpIndex != start)
                 throw new Syn.Error("Unary operator expected here", firstToken.position);

@@ -1,4 +1,4 @@
-// Operatore binario (con due argomenti: l ed r)
+// A binary operator (takes 2 arguments)
 public class BinOp : Expr {
 
     public enum Kind {
@@ -6,8 +6,8 @@ public class BinOp : Expr {
     }
 
     private Kind kind;
-    private Expr l; // left hand side
-    private Expr r; // right hand side
+    private Expr l; // first argument (left hand side)
+    private Expr r; // second argument (right hand side)
 
     public BinOp(Kind kind, Expr l, Expr r) {
         this.kind = kind;
@@ -40,10 +40,10 @@ public class BinOp : Expr {
     public static int priorityFor(Token t) {
         Kind kind = kindFromToken(t);
         switch (kind) {
-            case Kind.SUM: case Kind.SUB: return 0; // priorita' bassa
+            case Kind.SUM: case Kind.SUB: return 0; // low priority
             case Kind.MUL: return 1;
             case Kind.DIV: return 2;
-            case Kind.POW: return 3; // priorita' alta
+            case Kind.POW: return 3; // high priority
         }
         throw new Syn.Error("BinOp.priorityFor unimplemented for '" + kind + "'", t.position);
     }
