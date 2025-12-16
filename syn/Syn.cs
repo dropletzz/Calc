@@ -16,67 +16,92 @@ public static class Syn {
                 throw new Syn.Error("Expected a literal", firstToken.position);
         }
 
-        // parentheses removal
+        // FIRST PASS
+        // check that parentheses are balanced
         Token lastToken = tokens[start+len-1];
-        if (firstToken.kind == Token.Kind.OPAR
-            && lastToken.kind == Token.Kind.CPAR
-        ) return parseExpr(tokens, start + 1, len - 2);
+        int parLevel = 0;
+        int firstOparIndex = -1;
+        if (firstToken.kind == Token.Kind.OPAR) {
+            for (int i = start; i < start+len; i++) {
+                Token t = tokens[i];
+                if (t.kind == Token.Kind.OPAR && parLevel == 0)
+                    firstOparIndex = i;
 
+                if (t.kind == Token.Kind.OPAR) parLevel++;
+                else if (t.kind == Token.Kind.CPAR) parLevel--;
+
+                if (parLevel < 0) throw new Syn.Error(
+                    "Parenthesis never opened", t.position
+                );
+            }
+            if (parLevel > 0) throw new Syn.Error(
+                "Parenthesis never closed", tokens[firstOparIndex].position
+            );
+
+            // parentheses removal
+            if (lastToken.kind == Token.Kind.CPAR)
+                return parseExpr(tokens, start + 1, len - 2);
+        }
+
+        // SECOND PASS
         // find candidate UnOp and BinOp to parse
-        // based on (parentheses) and BinOp priority
+        // based on parentheses and BinOp priority
         int binOpIndex = -1, binOpPriority = -1, binOpParLevel = 1000;
         int unOpIndex = -1, unOpParLevel = 1000;
-        int parLevel = 0, firstOparIndex = -1;
+        parLevel = 0;
         for (int i = start; i < start+len; i++) {
-            if (tokens[i].kind == Token.Kind.OPAR && firstOparIndex < 0) firstOparIndex = i;
-
-            if (tokens[i].kind == Token.Kind.OPAR) parLevel++;
-            else if (tokens[i].kind == Token.Kind.CPAR) parLevel--;
-            else if (isUnOp(tokens[i]) && parLevel < unOpParLevel) {
+            Token t = tokens[i];
+            if (t.kind == Token.Kind.OPAR) parLevel++;
+            else if (t.kind == Token.Kind.CPAR) parLevel--;
+            else if (isUnOp(t) && parLevel < unOpParLevel) {
                 // find UnOp at lowest parentheses level
                 unOpIndex = i;
                 unOpParLevel = parLevel;
             }
-            else if (isBinOp(tokens[i])) {
+            else if (isBinOp(t) && parLevel <= binOpParLevel) {
                 // find BinOp at lowest parentheses level
                 // if parentheses level is the same, find at lowest proprity
-                int newPriority = BinOp.priorityFor(tokens[i]);
+                int newPriority = BinOp.priorityFor(t);
 
-                if (parLevel < binOpParLevel || 
-                    (parLevel == binOpParLevel && newPriority < binOpPriority)
-                ) {
+                if (parLevel < binOpParLevel || newPriority < binOpPriority) {
                     binOpIndex = i;
                     binOpParLevel = parLevel;
                     binOpPriority = newPriority;
                 }
             }
-
-            if (parLevel < 0) throw new Syn.Error("Parenthesis never opened", tokens[i].position);
-        }
-        if (parLevel > 0) throw new Syn.Error("Parenthesis never closed", tokens[firstOparIndex].position);
-
-        // parse BinOp
-        if (binOpIndex >= 0 && !(unOpIndex >= 0 && unOpParLevel < binOpParLevel)) {
-            if (binOpIndex == start || binOpIndex == start+len-1)
-                throw new Syn.Error("Binary operator misses an argument", tokens[binOpIndex].position);
-
-            Expr lhs = parseExpr(tokens, start, binOpIndex - start);
-            Expr rhs = parseExpr(tokens, binOpIndex + 1, start + len - binOpIndex - 1);
-            return new BinOp(BinOp.kindFromToken(tokens[binOpIndex]), lhs, rhs);
         }
 
-        // parse UnOp
-        if (unOpIndex >= 0) {
-            if (unOpIndex != start)
-                throw new Syn.Error("Unary operator expected here", firstToken.position);
-            if (len < 2)
-                throw new Syn.Error("Unary operator misses its agument", tokens[unOpIndex].position);
-
-            Expr arg = parseExpr(tokens, start + 1, len - 1);
-            return new UnOp(UnOp.kindFromToken(tokens[unOpIndex]), arg);
-        }
+        // parse either BinOp or UnOp
+        bool mustParseUnOp = unOpIndex >= 0 && unOpParLevel < binOpParLevel;
+        if (binOpIndex >= 0 && !mustParseUnOp) 
+            return parseBinOp(binOpIndex, tokens, start, len);
+        if (unOpIndex >= 0)
+            return parseUnOp(unOpIndex, tokens, start, len);
         
         throw new Syn.Error("Could not parse", firstToken.position);
+    }
+
+    private static UnOp parseUnOp(int unOpIndex, Token[] tokens, int start, int len) {
+        Token unOpToken = tokens[unOpIndex];
+        if (unOpIndex != start)
+            throw new Syn.Error("Unary operator expected here", tokens[start].position);
+        if (len < 2)
+            throw new Syn.Error("Unary operator misses its agument", unOpToken.position);
+
+        Expr arg = parseExpr(tokens, start + 1, len - 1);
+        return new UnOp(UnOp.kindFromToken(unOpToken), arg);
+    }
+
+    private static BinOp parseBinOp(int binOpIndex, Token[] tokens, int start, int len) {
+        Token binOpToken = tokens[binOpIndex];
+        if (binOpIndex == start || binOpIndex == start+len-1)
+            throw new Syn.Error(
+                "Binary operator misses an argument", binOpToken.position
+            );
+
+        Expr lhs = parseExpr(tokens, start, binOpIndex - start);
+        Expr rhs = parseExpr(tokens, binOpIndex + 1, start + len - binOpIndex - 1);
+        return new BinOp(BinOp.kindFromToken(binOpToken), lhs, rhs);
     }
 
     private static bool isUnOp(Token t) {

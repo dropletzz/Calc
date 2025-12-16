@@ -7,7 +7,7 @@
     }
 
     public static void runRepl() {
-        string input = Console.ReadLine();
+        String input = Console.ReadLine();
         while (input != null && !input.Equals("bye")) {
             try {
                 int length;
@@ -33,15 +33,17 @@
             "(37 - 4) * 3",
             "12 / (37 + 2) * 5",
             "log(13 - 12)",
-            "2 * ((13 - 12) * log 2",
-            "(13 - 12)) * log 2",
             "log sin 1.57",
-            "2 ^ 8",
             "log 10 * 2 - sin 20 - 7",
+            "3 plus 7 by 10",
+
+            // Tests for error messages
             "3/ ",
             "log 10 * 2 - sin 20 - 7 log",
             "log * 10 * 2 - sin 20 - 7 ",
-            "3 plus 7 by 10",
+            "(2 + 2) + 3 * ((2)",
+            "2 * ((13 - 12) * log 2",
+            "(13 - 12)) * log 2",
         };
 
         Console.WriteLine("---------------------");
