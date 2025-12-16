@@ -40,10 +40,10 @@ public class BinOp : Expr {
     public static int priorityFor(Token t) {
         Kind kind = kindFromToken(t);
         switch (kind) {
-            case Kind.POW: return 0; // priorita' alta
-            case Kind.DIV: return 1;
-            case Kind.MUL: return 2;
-            case Kind.SUM: case Kind.SUB: return 3; // priorita' bassa
+            case Kind.SUM: case Kind.SUB: return 0; // priorita' bassa
+            case Kind.MUL: return 1;
+            case Kind.DIV: return 2;
+            case Kind.POW: return 3; // priorita' alta
         }
         throw new Syn.Error("BinOp.priorityFor unimplemented for '" + kind + "'", t.position);
     }

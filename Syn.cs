@@ -26,23 +26,27 @@ public static class Syn {
         int parLevel = 0, firstOparIndex = -1;
         for (int i = start; i < start+len; i++) {
             if (tokens[i].kind == Token.Kind.OPAR && firstOparIndex < 0) firstOparIndex = i;
+
             if (tokens[i].kind == Token.Kind.OPAR) parLevel++;
             else if (tokens[i].kind == Token.Kind.CPAR) parLevel--;
+            else if (isUnOp(tokens[i]) && parLevel < unOpParLevel) {
+                // find unop at lowest parLevel
+                unOpIndex = i;
+                unOpParLevel = parLevel;
+            }
             else if (isBinOp(tokens[i])) {
+                // find binop at lowest parLevel
+                // if parLevel is the same find at lowest proprity
                 int newPriority = BinOp.priorityFor(tokens[i]);
 
                 if (parLevel < binOpParLevel || 
                     (parLevel == binOpParLevel &&
-                    newPriority > binOpPriority)
+                    newPriority < binOpPriority)
                 ) {
                     binOpIndex = i;
                     binOpParLevel = parLevel;
                     binOpPriority = newPriority;
                 }
-            }
-            if (unOpIndex < 0 && isUnOp(tokens[i]) && parLevel < unOpParLevel) {
-                unOpIndex = i;
-                unOpParLevel = parLevel;
             }
 
             if (parLevel < 0) throw new Syn.Error("Parenthesis never opened", tokens[i].position);
@@ -62,7 +66,7 @@ public static class Syn {
         // Operatori unari
         if (unOpIndex >= 0) {
             if (unOpIndex != start)
-                throw new Syn.Error("Unary operator expected here", tokens[start].position);
+                throw new Syn.Error("Unary operator expected here", firstToken.position);
             if (len < 2)
                 throw new Syn.Error("Unary operator misses its agument", tokens[unOpIndex].position);
 
