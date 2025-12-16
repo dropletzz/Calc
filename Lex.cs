@@ -62,7 +62,7 @@ public static class Lex {
     }
 
     public static int chompChar(char c, string s, int from) {
-        if (from < s.Length && s[from] == '.') from++;
+        if (from < s.Length && s[from] == c) from++;
         return from;
     }
 
