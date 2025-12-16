@@ -1,8 +1,5 @@
 // Operatore unario (con 1 argomento)
 public class UnOp : Expr {
-    // Simboli consentiti per operazioni unarie.
-    // Precedenza:                   bassa >>>>> alta 
-    public static readonly string[] SYMBOLS = { "log", "sin" };
     
     public enum Kind {
         LOG, SIN
@@ -24,12 +21,12 @@ public class UnOp : Expr {
         throw new Exception("UNIMPLEMENTED: eval for UnOp.Kind" + kind);
     }
 
-    public static Kind kindFromSymbol(string s) {
-        switch (s) {
-            case "log": return Kind.LOG;
-            case "sin": return Kind.SIN;
+    public static Kind kindFromToken(Token t) {
+        switch (t.kind) {
+            case Token.Kind.LOG: return Kind.LOG;
+            case Token.Kind.SIN: return Kind.SIN;
         }
-        throw new Exception("UNIMPLEMENTED: UnOp.kindFromSymbol for \"" + s + "\"");
+        throw new Syn.Error("UnOp.kindFromToken unimplemented for '" + t.kind + "'", t.position);
     }
 
     public override string ToString() {

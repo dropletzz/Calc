@@ -8,12 +8,18 @@
 
     public static void runRepl() {
         string input = Console.ReadLine();
-        while (!input.Equals("bye")) {
+        while (input != null && !input.Equals("bye")) {
             try {
-                Expr expr = Syn.parseExpr(input);
-                Console.WriteLine("= " + expr.eval());
+                int length;
+                Token[] tokens = Lex.tokenize(input, out length);
+                Expr x = Syn.parse(tokens, length);
+                Console.WriteLine("= " + x.eval());
             } catch (Syn.Error e) {
-                Console.WriteLine("= Syntax error: " + e.message);
+                for (int i = 0; i < e.position; i++) Console.Write(" ");
+                Console.WriteLine("^ [Syn] " + e.message);
+            } catch (Lex.Error e) {
+                for (int i = 0; i < e.position; i++) Console.Write(" ");
+                Console.WriteLine("^ [Lex] " + e.message);
             }
             input = Console.ReadLine();
         }
@@ -22,8 +28,10 @@
 
     public static void runTests() {
         string[] tests = {
-            "12 / 3.7 + 2 * 0.5",
+            "2 + 2",
+            "12 / 37 + 2 * 5",
             "log 2.7",
+            "log sin 1.57",
             "2 ^ 8",
             "log 10 * 2 - sin 20 - 7",
             "3/ ",
@@ -36,11 +44,26 @@
         foreach (string test in tests) {
             Console.WriteLine(test);
             try {
-                Expr expr = Syn.parseExpr(test);
-                Console.WriteLine("= " + expr.eval());
-                Console.WriteLine(expr.ToString());
+                int length = 0;
+                Token[] tokens = Lex.tokenize(test, out length);
+                Expr x = Syn.parse(tokens, length);
+                Console.WriteLine("= " + x.eval());
+
+                // print tokens
+                Console.Write("tokens: ");
+                for (int i = 0; i < length - 1; i++)
+                    Console.Write(tokens[i] + ", ");
+                Console.WriteLine(tokens[length - 1]);
+
+                // print expr
+                Console.WriteLine("expr: " + x);
+
+            } catch (Lex.Error e) {
+                for (int i = 0; i < e.position; i++) Console.Write(" ");
+                Console.WriteLine("^ [Lex] " + e.message);
             } catch (Syn.Error e) {
-                Console.WriteLine("= Syntax error: " + e.message);
+                for (int i = 0; i < e.position; i++) Console.Write(" ");
+                Console.WriteLine("^ [Syn] " + e.message);
             }
             Console.WriteLine("---------------------");
         }

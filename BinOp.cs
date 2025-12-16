@@ -1,9 +1,6 @@
-// Operatore binario (con due argomenti: l e r)
+// Operatore binario (con due argomenti: l ed r)
 public class BinOp : Expr {
-    // Simboli consentiti per operazioni binarie.
-    // Precedenza:                   bassa >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> alta 
-    public static readonly string[] SYMBOLS = { "+", "plus", "-", "minus", "*", "times", "/", "by", "^" };
-    
+
     public enum Kind {
         SUM, SUB, MUL, DIV, POW
     }
@@ -26,18 +23,28 @@ public class BinOp : Expr {
             case Kind.DIV: return l.eval() / r.eval();
             case Kind.POW: return Math.Pow(l.eval(), r.eval());
         }
-        throw new Exception("UNIMPLEMENTED: eval for BinOp.Kind" + kind);
+        throw new Exception("BinOp.eval unimplemented for " + kind);
     }
 
-    public static Kind kindFromSymbol(string c) {
-        switch (c) {
-            case "+": case "plus":  return Kind.SUM;
-            case "-": case "minus": return Kind.SUB;
-            case "*": case "times": return Kind.MUL;
-            case "/": case "by":    return Kind.DIV;
-            case "^":               return Kind.POW;
+    public static Kind kindFromToken(Token t) {
+        switch (t.kind) {
+            case Token.Kind.PLUS_SIGN: case Token.Kind.PLUS: return Kind.SUM;
+            case Token.Kind.DASH: case Token.Kind.MINUS:     return Kind.SUB;
+            case Token.Kind.ASTERISK: case Token.Kind.TIMES: return Kind.MUL;
+            case Token.Kind.SLASH: case Token.Kind.BY:       return Kind.DIV;
+            case Token.Kind.TICK:                            return Kind.POW;
         }
-        throw new Exception("UNIMPLEMENTED: BinOp.kindFromSymbol for '" + c + "'");
+        throw new Syn.Error("BinOp.kindFromToken unimplemented for '" + t.kind + "'", t.position);
+    }
+
+    public static int priorityFor(Token t) {
+        Kind kind = kindFromToken(t);
+        switch (kind) {
+            case Kind.POW: return 0; // priorita' alta
+            case Kind.MUL: case Kind.DIV: return 1;
+            case Kind.SUM: case Kind.SUB: return 2; // priorita' bassa
+        }
+        throw new Syn.Error("BinOp.priorityFor unimplemented for '" + kind + "'", t.position);
     }
 
     public override string ToString() {
