@@ -3,44 +3,42 @@ public static class Syn {
 
     public static Expr parse(Token[] tokens, int len) {
         if (len <= 0) throw new Syn.Error("Can't parse empty token list", 0);
+
+        // check that parentheses are balanced
+        int parLevel = 0;
+        int firstOparIndex = -1;
+        for (int i = 0; i < len; i++) {
+            Token t = tokens[i];
+            if (t.kind == Token.Kind.OPAR && parLevel == 0)
+                firstOparIndex = i;
+
+            if (t.kind == Token.Kind.OPAR) parLevel++;
+            else if (t.kind == Token.Kind.CPAR) parLevel--;
+
+            if (parLevel < 0) throw new Syn.Error(
+                "Parenthesis never opened", t.position
+            );
+        }
+        if (parLevel > 0) throw new Syn.Error(
+            "Parenthesis never closed", tokens[firstOparIndex].position
+        );
+
         return parseExpr(tokens, 0, len);
     }
 
     private static Expr parseExpr(Token[] tokens, int start, int len) {
         Token firstToken = tokens[start];
 
-        // FIRST PASS
-        // check that parentheses are balanced
-        int parLevel = 0;
-        int firstOparIndex = -1;
-        if (firstToken.kind == Token.Kind.OPAR) {
-            for (int i = start; i < start+len; i++) {
-                Token t = tokens[i];
-                if (t.kind == Token.Kind.OPAR && parLevel == 0)
-                    firstOparIndex = i;
+        // parentheses removal
+        if (tokens[start].kind == Token.Kind.OPAR &&
+            tokens[len-1].kind == Token.Kind.CPAR
+        ) return parseExpr(tokens, start + 1, len - 2);
 
-                if (t.kind == Token.Kind.OPAR) parLevel++;
-                else if (t.kind == Token.Kind.CPAR) parLevel--;
-
-                if (parLevel < 0) throw new Syn.Error(
-                    "Parenthesis never opened", t.position
-                );
-            }
-            if (parLevel > 0) throw new Syn.Error(
-                "Parenthesis never closed", tokens[firstOparIndex].position
-            );
-
-            // parentheses removal
-            if (tokens[start+len-1].kind == Token.Kind.CPAR)
-                return parseExpr(tokens, start + 1, len - 2);
-        }
-
-        // SECOND PASS
         // find candidate UnOp and BinOp to parse
         // based on parentheses and BinOp priority
         int binOpIndex = -1, binOpPriority = -1, binOpParLevel = Int32.MaxValue;
         int unOpIndex = -1, unOpParLevel = Int32.MaxValue;
-        parLevel = 0;
+        int parLevel = 0;
         for (int i = start; i < start+len; i++) {
             Token t = tokens[i];
             if (t.kind == Token.Kind.OPAR) parLevel++;
