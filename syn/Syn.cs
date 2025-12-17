@@ -46,8 +46,8 @@ public static class Syn {
         // SECOND PASS
         // find candidate UnOp and BinOp to parse
         // based on parentheses and BinOp priority
-        int binOpIndex = -1, binOpPriority = -1, binOpParLevel = 1000;
-        int unOpIndex = -1, unOpParLevel = 1000;
+        int binOpIndex = -1, binOpPriority = -1, binOpParLevel = Int32.MaxValue;
+        int unOpIndex = -1, unOpParLevel = Int32.MaxValue;
         parLevel = 0;
         for (int i = start; i < start+len; i++) {
             Token t = tokens[i];
