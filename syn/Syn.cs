@@ -2,23 +2,15 @@
 public static class Syn {
 
     public static Expr parse(Token[] tokens, int len) {
+        if (len <= 0) throw new Syn.Error("Can't parse empty token list", 0);
         return parseExpr(tokens, 0, len);
     }
 
     private static Expr parseExpr(Token[] tokens, int start, int len) {
         Token firstToken = tokens[start];
 
-        // parse Literal
-        if (len == 1) {
-            if (firstToken.kind == Token.Kind.NUMBER)
-                return new Literal(firstToken.value);
-            else
-                throw new Syn.Error("Expected a literal", firstToken.position);
-        }
-
         // FIRST PASS
         // check that parentheses are balanced
-        Token lastToken = tokens[start+len-1];
         int parLevel = 0;
         int firstOparIndex = -1;
         if (firstToken.kind == Token.Kind.OPAR) {
@@ -39,7 +31,7 @@ public static class Syn {
             );
 
             // parentheses removal
-            if (lastToken.kind == Token.Kind.CPAR)
+            if (tokens[start+len-1].kind == Token.Kind.CPAR)
                 return parseExpr(tokens, start + 1, len - 2);
         }
 
@@ -78,6 +70,14 @@ public static class Syn {
         if (unOpIndex >= 0)
             return parseUnOp(unOpIndex, tokens, start, len);
         
+        // parse Literal
+        if (len == 1) {
+            if (firstToken.kind == Token.Kind.NUMBER)
+                return new Literal(firstToken.value);
+            else
+                throw new Syn.Error("Expected a literal", firstToken.position);
+        }
+
         throw new Syn.Error("Could not parse", firstToken.position);
     }
 
