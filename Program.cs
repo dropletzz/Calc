@@ -56,13 +56,12 @@
                 Console.WriteLine("= " + x.eval());
 
                 // print tokens
-                Console.Write("tokens: ");
                 for (int i = 0; i < length - 1; i++)
                     Console.Write(tokens[i] + ", ");
                 Console.WriteLine(tokens[length - 1]);
 
                 // print expr
-                Console.WriteLine("expr: " + x);
+                Console.WriteLine(x);
 
             } catch (Lex.Error e) {
                 for (int i = 0; i < e.position; i++) Console.Write(" ");
