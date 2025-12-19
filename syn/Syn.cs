@@ -121,7 +121,7 @@ public static class Syn {
             case Token.Kind.BY:
             case Token.Kind.ASTERISK:
             case Token.Kind.TIMES:
-            case Token.Kind.TICK:
+            case Token.Kind.CARET:
             return true;
         }
         return false;

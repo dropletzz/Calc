@@ -32,7 +32,7 @@ public class BinOp : Expr {
             case Token.Kind.DASH: case Token.Kind.MINUS:     return Kind.SUB;
             case Token.Kind.ASTERISK: case Token.Kind.TIMES: return Kind.MUL;
             case Token.Kind.SLASH: case Token.Kind.BY:       return Kind.DIV;
-            case Token.Kind.TICK:                            return Kind.POW;
+            case Token.Kind.CARET:                           return Kind.POW;
         }
         throw new Syn.Error("BinOp.kindFromToken unimplemented for '" + t.kind + "'", t.position);
     }

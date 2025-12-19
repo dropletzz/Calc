@@ -2,7 +2,7 @@ public class Token {
 
     public enum Kind {
         NUMBER, OPAR, CPAR,
-        PLUS_SIGN, DASH, ASTERISK, SLASH, TICK, // MEH: '^' is problly not called a 'tick'
+        PLUS_SIGN, DASH, ASTERISK, SLASH, CARET,
         PLUS, BY, TIMES, MINUS, LOG, SIN
     }
 
@@ -37,7 +37,7 @@ public class Token {
             case "times": kind = Kind.TIMES; break;
             case "/":     kind = Kind.SLASH; break;
             case "by":    kind = Kind.BY; break;
-            case "^":     kind = Kind.TICK; break;
+            case "^":     kind = Kind.CARET; break;
             case "log":   kind = Kind.LOG; break;
             case "sin":   kind = Kind.SIN; break;
             case "(":     kind = Kind.OPAR; break;
