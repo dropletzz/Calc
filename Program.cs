@@ -7,7 +7,7 @@
     }
 
     public static void runRepl() {
-        String input = Console.ReadLine();
+        string? input = Console.ReadLine();
         while (input != null && !input.Equals("bye")) {
             try {
                 int length;
