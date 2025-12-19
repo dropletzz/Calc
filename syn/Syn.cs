@@ -81,10 +81,13 @@ public static class Syn {
 
     private static UnOp parseUnOp(int unOpIndex, Token[] tokens, int start, int len) {
         Token unOpToken = tokens[unOpIndex];
-        if (unOpIndex != start)
-            throw new Syn.Error("Unary operator expected here", tokens[start].position);
         if (len < 2)
             throw new Syn.Error("Unary operator misses its agument", unOpToken.position);
+        if (unOpIndex != start)
+            if (tokens[start].kind == Token.Kind.NUMBER)
+                throw new Syn.Error("Unexpected token", tokens[start+1].position);
+            else
+                throw new Syn.Error("Unexpected token", tokens[start].position);
 
         Expr arg = parseExpr(tokens, start + 1, len - 1);
         return new UnOp(UnOp.kindFromToken(unOpToken), arg);
