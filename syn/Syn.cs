@@ -31,7 +31,7 @@ public static class Syn {
 
         // parentheses removal
         if (tokens[start].kind == Token.Kind.OPAR &&
-            tokens[len-1].kind == Token.Kind.CPAR
+            tokens[start+len-1].kind == Token.Kind.CPAR
         ) return parseExpr(tokens, start + 1, len - 2);
 
         // find candidate UnOp and BinOp to parse
