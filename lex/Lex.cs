@@ -1,20 +1,26 @@
+// Lexical analyzer
 public static class Lex {
-    // if there's a symbol that's the substring of another symbol
-    // the lexer will most likely mess up
-    // should probably check that invariant at runtime (but when?)
-    public static readonly string[] SYMBOLS = { "+", "plus", "-", "minus", "*", "times", "/", "by", "^", "log", "sin", "(", ")" };
+
+    public static readonly string[] SYMBOLS = {
+        "+", "plus", "-", "minus", "*", "times", "/", "by",
+        "^", "log", "sin", "(", ")"
+    };
+
+    public static readonly int MAX_TOKENS_LENGTH = 1024;
 
     public static Token[] tokenize(string s, out int tokensLength) {
         int position = 0;
-        Token[] tokens = new Token[1024];
+        Token[] tokens = new Token[MAX_TOKENS_LENGTH];
         tokensLength = 0;
 
         position = chompWhitespace(s, position);
 
         while (position < s.Length) {
             bool found = false;
+            if (tokensLength >= MAX_TOKENS_LENGTH)
+                throw new Lex.Error("Too many tokens, max is " + MAX_TOKENS_LENGTH, position);
 
-            // parse a symbol
+            // look for a symbol
             foreach (string sym in SYMBOLS) {
                 found = true;
                 for (int c = 0; c < sym.Length; c++) {
@@ -25,14 +31,14 @@ public static class Lex {
                 }
                 if (found) {
                     string rawToken = s.Substring(position, sym.Length);
-                    tokens[tokensLength] = Token.fromString(rawToken, position);
+                    tokens[tokensLength] = parseSymbol(rawToken, position);
                     tokensLength++;
                     position += sym.Length;
                     break;
                 }
             }
 
-            // parse number
+            // look for a number
             if (!found) {
                 int startPosition = position;
                 position = chompDigits(s, position);
@@ -41,7 +47,7 @@ public static class Lex {
 
                 if (position > startPosition) {
                     string rawToken = s.Substring(startPosition, position - startPosition);
-                    tokens[tokensLength] = Token.fromString(rawToken, startPosition);
+                    tokens[tokensLength] = parseNumber(rawToken, startPosition);
                     tokensLength++;
                     found = true;
                 }
@@ -54,6 +60,36 @@ public static class Lex {
 
         return tokens;
     }
+
+    public static Token parseNumber(string rawToken, int position) {
+        double value;
+        bool isNumber = Double.TryParse(rawToken, out value);
+        if (!isNumber) throw new Lex.Error("Couldn't parse number", position);
+        return new Token(position, rawToken, value);
+    }
+
+    public static Token parseSymbol(string rawToken, int position) {
+        Token.Kind kind;
+        switch (rawToken) {
+            case "+":     kind = Token.Kind.PLUS_SIGN; break;
+            case "plus":  kind = Token.Kind.PLUS; break;
+            case "-":     kind = Token.Kind.DASH; break;
+            case "minus": kind = Token.Kind.MINUS; break;
+            case "*":     kind = Token.Kind.ASTERISK; break;
+            case "times": kind = Token.Kind.TIMES; break;
+            case "/":     kind = Token.Kind.SLASH; break;
+            case "by":    kind = Token.Kind.BY; break;
+            case "^":     kind = Token.Kind.CARET; break;
+            case "log":   kind = Token.Kind.LOG; break;
+            case "sin":   kind = Token.Kind.SIN; break;
+            case "(":     kind = Token.Kind.OPAR; break;
+            case ")":     kind = Token.Kind.CPAR; break;
+            default: throw new Lex.Error("Couldn't parse symbol", position);
+        }
+
+        return new Token(kind, position, rawToken);
+    }
+
 
     public static bool isDigit(char c) {
         return c >= '0' && c <= '9';

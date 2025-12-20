@@ -24,36 +24,8 @@ public class Token {
         this.value = value;
     }
 
-    public static Token fromString(string raw, int position) {
-        Kind kind = Kind.NUMBER;
-        // should convert this switch to a static map
-        // to avoid duplication with Lex.SYMBOLS
-        switch (raw) {
-            case "+":     kind = Kind.PLUS_SIGN; break;
-            case "plus":  kind = Kind.PLUS; break;
-            case "-":     kind = Kind.DASH; break;
-            case "minus": kind = Kind.MINUS; break;
-            case "*":     kind = Kind.ASTERISK; break;
-            case "times": kind = Kind.TIMES; break;
-            case "/":     kind = Kind.SLASH; break;
-            case "by":    kind = Kind.BY; break;
-            case "^":     kind = Kind.CARET; break;
-            case "log":   kind = Kind.LOG; break;
-            case "sin":   kind = Kind.SIN; break;
-            case "(":     kind = Kind.OPAR; break;
-            case ")":     kind = Kind.CPAR; break;
-        }
-        if (kind != Kind.NUMBER) return new Token(kind, position, raw);
-
-        double value;
-        bool isNumber = Double.TryParse(raw, out value);
-        if (isNumber) return new Token(position, raw, value);
-
-        throw new Lex.Error("Token.fromString is unimplemented for '" + raw + "'", position);
-    }
-
     public override string ToString() {
         if (kind == Kind.NUMBER) return kind + "(" + value + ")";
-        return "" + kind;
+        return kind.ToString();
     }
 }
