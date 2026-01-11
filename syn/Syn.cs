@@ -24,17 +24,17 @@ public static class Syn {
 
             if (t.kind == Token.Kind.OPAR) parLevel++;
             else if (t.kind == Token.Kind.CPAR) parLevel--;
-            else if (parLevel == 0) {
+            else if (parLevel == 0 && isBinOp(t)) {
                 // find BinOp at parentheses level 0 and lowest priority
-                if (isBinOp(t)) {
-                    int newPriority = BinOp.priorityFor(t);
-                    if (newPriority < binOpPriority) {
-                        binOpIndex = i;
-                        binOpPriority = newPriority;
-                    }
+                int newPriority = BinOp.priorityFor(t);
+                if (newPriority < binOpPriority) {
+                    binOpIndex = i;
+                    binOpPriority = newPriority;
                 }
+            }
+            else if (parLevel == 0 && unOpIndex < 0 && isUnOp(t)) {
                 // find first UnOp at parentheses level 0
-                else if (unOpIndex < 0 && isUnOp(t)) unOpIndex = i;
+                unOpIndex = i;
             }
 
             if (parLevel < 0) throw new Syn.Error(
