@@ -9,3 +9,5 @@ This code is organized in levels of increasing complexity:
 ## How to run
 Use the command `dotnet run` to start a REPL where you can
 type in expressions and get the result.
+
+Use the command `dotnet run tests` to run some tests.
