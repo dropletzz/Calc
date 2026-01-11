@@ -1,4 +1,4 @@
-# Calc L1
+# Calc L2
 ### An expression calculator made for educational purposes
 
 This code is organized in levels of increasing complexity:
