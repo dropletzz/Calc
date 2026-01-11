@@ -1,4 +1,4 @@
-// Operatore binario (con due argomenti: l e r)
+// A bynary operator (takes 2 arguments)
 public class BinOp : Expr {
     // Simboli consentiti per operazioni binarie.
     // Precedenza:                   bassa >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> alta 

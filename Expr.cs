@@ -1,4 +1,4 @@
-// Una espressione: qualcosa che puo' essere valutato (evaluated)
+// An expression: something that can be evaluated
 public interface Expr {
     public abstract double eval();
 }
