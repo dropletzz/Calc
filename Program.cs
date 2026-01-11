@@ -34,6 +34,10 @@ Expr parseExpr(string s) {
     throw new Exception("Expression can't be parsed");
 }
 
+Console.WriteLine(
+    "Welcome to Calc (type 'bye' to exit)\n" +
+    "Type an expression like '2 + 2' to get the result"
+);
 string? input = Console.ReadLine();
 while (input != null && !input.Equals("bye")) {
     try {
