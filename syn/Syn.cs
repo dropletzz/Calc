@@ -35,35 +35,29 @@ public static class Syn {
         ) return parseExpr(tokens, start + 1, len - 2);
 
         // find candidate UnOp and BinOp to parse
-        // based on parentheses and BinOp priority
-        int binOpIndex = -1, binOpPriority = -1, binOpParLevel = Int32.MaxValue;
-        int unOpIndex = -1, unOpParLevel = Int32.MaxValue;
+        // (based on parentheses and BinOp priority)
+        int binOpIndex = -1, binOpPriority = Int32.MaxValue;
+        int unOpIndex = -1;
         int parLevel = 0;
         for (int i = start; i < start+len; i++) {
             Token t = tokens[i];
             if (t.kind == Token.Kind.OPAR) parLevel++;
             else if (t.kind == Token.Kind.CPAR) parLevel--;
-            else if (isUnOp(t) && parLevel < unOpParLevel) {
-                // find UnOp at lowest parentheses level
-                unOpIndex = i;
-                unOpParLevel = parLevel;
-            }
-            else if (isBinOp(t) && parLevel <= binOpParLevel) {
-                // find BinOp at lowest parentheses level
-                // if parentheses level is the same, find at lowest proprity
-                int newPriority = BinOp.priorityFor(t);
-
-                if (parLevel < binOpParLevel || newPriority < binOpPriority) {
-                    binOpIndex = i;
-                    binOpParLevel = parLevel;
-                    binOpPriority = newPriority;
+            else if (parLevel == 0) {
+                // find BinOp at parentheses level 0 and lowest priority
+                if (isBinOp(t)) {
+                    int newPriority = BinOp.priorityFor(t);
+                    if (newPriority < binOpPriority) {
+                        binOpIndex = i;
+                        binOpPriority = newPriority;
+                    }
                 }
+                // find first UnOp at parentheses level 0
+                else if (unOpIndex < 0 && isUnOp(t)) unOpIndex = i;
             }
         }
 
-        // parse either BinOp or UnOp
-        bool mustParseUnOp = unOpIndex >= 0 && unOpParLevel < binOpParLevel;
-        if (binOpIndex >= 0 && !mustParseUnOp) 
+        if (binOpIndex >= 0) 
             return parseBinOp(binOpIndex, tokens, start, len);
         if (unOpIndex >= 0)
             return parseUnOp(unOpIndex, tokens, start, len);
