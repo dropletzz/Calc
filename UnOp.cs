@@ -1,7 +1,6 @@
-// Operatore unario (con 1 argomento)
+// Unary operator (takes 1 argument)
 public class UnOp : Expr {
-    // Simboli consentiti per operazioni unarie.
-    // Precedenza:                   bassa >>>>> alta 
+    // UnOp symbols               precedence: low >>>>>>> high 
     public static readonly string[] SYMBOLS = { "log", "sin" };
     
     public enum Kind {

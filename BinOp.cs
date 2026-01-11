@@ -1,7 +1,6 @@
 // A bynary operator (takes 2 arguments)
 public class BinOp : Expr {
-    // Simboli consentiti per operazioni binarie.
-    // Precedenza:                   bassa >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> alta 
+    // BinOp symbols                          low precedence >>>>>>>>>>>>>>>>>>>>>>>>>>>> high precedence
     public static readonly string[] SYMBOLS = { "+", "plus", "-", "minus", "*", "times", "/", "by", "^" };
     
     public enum Kind {

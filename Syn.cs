@@ -1,14 +1,14 @@
-// Analizzatore sintattico
+// Syntactical analyzer
 public static class Syn {
     public static Expr parseExpr(string s) {
-        s = s.Trim(); // tolgo spazi inizali e finali da s
+        s = s.Trim();
 
-        // Valore letterale
+        // Literal values
         double value;
         bool isLiteral = Double.TryParse(s, out value);
         if (isLiteral) return new Literal(value);
 
-        // Operatori binari
+        // Binary operators
         foreach (string sym in BinOp.SYMBOLS) {
             int index = s.LastIndexOf(sym);
             if (index > 0 && index < s.Length-1) {
@@ -16,7 +16,7 @@ public static class Syn {
             }
         }
 
-        // Operatori unari
+        // Unary operators
         foreach (string sym in UnOp.SYMBOLS) {
             int index = s.IndexOf(sym);
             int afterSymbol = index + sym.Length;
