@@ -7,8 +7,8 @@
     }
 
     public static void runRepl() {
-        string input = Console.ReadLine();
-        while (!input.Equals("bye")) {
+        string? input = Console.ReadLine();
+        while (input != null && !input.Equals("bye")) {
             try {
                 Expr expr = Syn.parseExpr(input);
                 Console.WriteLine("= " + expr.eval());
