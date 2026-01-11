@@ -34,11 +34,15 @@ Expr parseExpr(string s) {
     throw new Exception("Expression can't be parsed");
 }
 
-string exprString = "2 + 12 / 4 * 0.5";
+string? input = Console.ReadLine();
+while (input != null && !input.Equals("bye")) {
+    try {
+        Expr expr = parseExpr(input);
+        Console.WriteLine("= " + expr.eval());
+    } catch (Exception e) {
+        Console.WriteLine("! " + e.Message);
+    }
 
-try {
-    Expr result = parseExpr(exprString);
-    Console.WriteLine(exprString + " = " + result.eval());
-} catch (Exception e) {
-    Console.WriteLine(e.Message);
+    input = Console.ReadLine();
 }
+Console.WriteLine("bye!");
