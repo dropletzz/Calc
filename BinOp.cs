@@ -1,4 +1,4 @@
-
+// A bynary operator (takes 2 arguments)
 public class BinOp : Expr {
     
     public enum Kind {

@@ -1,4 +1,4 @@
-// Un valore letterale
+// A literal value
 public class Literal : Expr {
     private double value;
 
