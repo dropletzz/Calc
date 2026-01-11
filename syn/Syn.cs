@@ -100,8 +100,10 @@ public static class Syn {
                 "Binary operator misses an argument", binOpToken.position
             );
 
-        Expr lhs = parseExpr(tokens, start, binOpIndex - start);
-        Expr rhs = parseExpr(tokens, binOpIndex + 1, start + len - binOpIndex - 1);
+        int lhsLen = binOpIndex - start;
+        int rhsLen = len - 1 - lhsLen;
+        Expr lhs = parseExpr(tokens, start, lhsLen);
+        Expr rhs = parseExpr(tokens, binOpIndex + 1, rhsLen);
         return new BinOp(BinOp.kindFromToken(binOpToken), lhs, rhs);
     }
 
