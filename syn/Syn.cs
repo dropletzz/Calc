@@ -27,7 +27,7 @@ public static class Syn {
             else if (parLevel == 0 && isBinOp(t)) {
                 // find BinOp at parentheses level 0 and lowest priority
                 int newPriority = BinOp.priorityFor(t);
-                if (newPriority < binOpPriority) {
+                if (newPriority <= binOpPriority) {
                     binOpIndex = i;
                     binOpPriority = newPriority;
                 }
