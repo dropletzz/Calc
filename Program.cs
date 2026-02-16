@@ -7,27 +7,27 @@ Expr parseExpr(string s) {
     if (isLiteral) return new Literal(value);
 
     if (s.Contains('+')) {
-        string[] split = s.Split('+', 2);
-        Expr l = parseExpr(split[0]);
-        Expr r = parseExpr(split[1]);
+        int opIndex = s.LastIndexOf('+');
+        Expr l = parseExpr(s.Substring(0, opIndex));
+        Expr r = parseExpr(s.Substring(opIndex + 1));
         return new BinOp(BinOp.Kind.SUM, l, r);
     }
     if (s.Contains('-')) {
-        string[] split = s.Split('-', 2);
-        Expr l = parseExpr(split[0]);
-        Expr r = parseExpr(split[1]);
+        int opIndex = s.LastIndexOf('-');
+        Expr l = parseExpr(s.Substring(0, opIndex));
+        Expr r = parseExpr(s.Substring(opIndex + 1));
         return new BinOp(BinOp.Kind.SUB, l, r);
     }
     if (s.Contains('*')) {
-        string[] split = s.Split('*', 2);
-        Expr l = parseExpr(split[0]);
-        Expr r = parseExpr(split[1]);
+        int opIndex = s.LastIndexOf('*');
+        Expr l = parseExpr(s.Substring(0, opIndex));
+        Expr r = parseExpr(s.Substring(opIndex + 1));
         return new BinOp(BinOp.Kind.MUL, l, r);
     }
     if (s.Contains('/')) {
-        string[] split = s.Split('/', 2);
-        Expr l = parseExpr(split[0]);
-        Expr r = parseExpr(split[1]);
+        int opIndex = s.LastIndexOf('/');
+        Expr l = parseExpr(s.Substring(0, opIndex));
+        Expr r = parseExpr(s.Substring(opIndex + 1));
         return new BinOp(BinOp.Kind.DIV, l, r);
     }
 
