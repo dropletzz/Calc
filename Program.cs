@@ -12,12 +12,11 @@
             "Type an expression like '2 + 2' to get the result"
         );
         string? input = Console.ReadLine();
+        Interpreter t = new Interpreter();
         while (input != null && !input.Equals("bye")) {
             try {
-                int length;
-                Token[] tokens = Lex.tokenize(input, out length);
-                Expr x = Syn.parse(tokens, length);
-                Console.WriteLine("= " + x.eval());
+                double result = t.run(input);
+                Console.WriteLine("= " + result);
             } catch (Syn.Error e) {
                 for (int i = 0; i < e.position; i++) Console.Write(" ");
                 Console.WriteLine("^ [Syn] " + e.message);
@@ -55,21 +54,11 @@
 
         Console.WriteLine("---------------------");
         foreach (string test in tests) {
+            Interpreter t = new Interpreter(true);
             Console.WriteLine(test);
             try {
-                int length = 0;
-                Token[] tokens = Lex.tokenize(test, out length);
-                Expr x = Syn.parse(tokens, length);
-                Console.WriteLine("= " + x.eval());
-
-                // print tokens
-                for (int i = 0; i < length - 1; i++)
-                    Console.Write(tokens[i] + ", ");
-                Console.WriteLine(tokens[length - 1]);
-
-                // print expr
-                Console.WriteLine(x);
-
+                double result = t.run(test);
+                Console.WriteLine("= " + result);
             } catch (Lex.Error e) {
                 for (int i = 0; i < e.position; i++) Console.Write(" ");
                 Console.WriteLine("^ [Lex] " + e.message);
