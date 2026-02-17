@@ -2,7 +2,7 @@
 public class BinOp : Expr {
 
     public enum Kind {
-        SUM, SUB, MUL, DIV, POW, ASS
+        SUM, SUB, MUL, DIV, POW, ASS, GT, LT, AND, OR
     }
 
     private Kind kind;
@@ -22,6 +22,10 @@ public class BinOp : Expr {
             case Kind.MUL: return l.eval(_) * r.eval(_);
             case Kind.DIV: return l.eval(_) / r.eval(_);
             case Kind.POW: return Math.Pow(l.eval(_), r.eval(_));
+            case Kind.LT: return (l.eval(_) < r.eval(_)) ? 1 : 0;
+            case Kind.GT: return (l.eval(_) > r.eval(_)) ? 1 : 0;
+            case Kind.AND: return (l.eval(_) != 0 && r.eval(_) != 0) ? 1 : 0;
+            case Kind.OR: return (l.eval(_) != 0 || r.eval(_) != 0) ? 1 : 0;
             case Kind.ASS: {
                 if (l is not Identifier) throw new Exception("Only identifiers can be assigned");
                 Identifier id = (Identifier) l;
@@ -41,6 +45,10 @@ public class BinOp : Expr {
             case Token.Kind.SLASH: case Token.Kind.BY:       return Kind.DIV;
             case Token.Kind.CARET:                           return Kind.POW;
             case Token.Kind.EQUALS:                          return Kind.ASS;
+            case Token.Kind.OPAR_ANG:                        return Kind.LT;
+            case Token.Kind.CPAR_ANG:                        return Kind.GT;
+            case Token.Kind.AND:                             return Kind.AND;
+            case Token.Kind.OR:                              return Kind.OR;
         }
         throw new Syn.Error("BinOp.kindFromToken unimplemented for '" + t.kind + "'", t.position);
     }
@@ -48,7 +56,9 @@ public class BinOp : Expr {
     public static int priorityFor(Token t) {
         Kind kind = kindFromToken(t);
         switch (kind) {
-            case Kind.SUM: case Kind.SUB: return 0; // low priority
+            case Kind.AND: case Kind.OR: return -2; // low priority
+            case Kind.LT: case Kind.GT: return -1;
+            case Kind.SUM: case Kind.SUB: return 0;
             case Kind.MUL: return 1;
             case Kind.DIV: return 2;
             case Kind.POW: return 3;

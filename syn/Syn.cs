@@ -10,11 +10,15 @@ public static class Syn {
         Token firstToken = tokens[start];
         Token lastToken = tokens[start + len - 1];
 
-        // find candidate UnOp and BinOp to parse
+        // find candidate UnOp, BinOp and TernOp to parse
         // (based on parentheses and BinOp priority)
+        int ternOpFirstIndex = -1;
+        int ternOpSecondIndex = -1;
+        int ternOpLevel = 0;
         int binOpIndex = -1;
         int binOpPriority = Int32.MaxValue;
         int unOpIndex = -1;
+
         int firstOparIndex = -1;
         int parLevel = 0;
         for (int i = start; i < start+len; i++) {
@@ -24,6 +28,17 @@ public static class Syn {
 
             if (t.kind == Token.Kind.OPAR) parLevel++;
             else if (t.kind == Token.Kind.CPAR) parLevel--;
+            else if (parLevel == 0 && isTernOpFirst(t)) {
+                ternOpLevel++;
+                if (ternOpFirstIndex < 0) ternOpFirstIndex = i;
+            }
+            else if (
+                parLevel == 0 && isTernOpSecond(t) 
+                && ternOpSecondIndex < 0 && ternOpFirstIndex >= 0
+            ) {
+                ternOpLevel--;
+                if (ternOpLevel == 0) ternOpSecondIndex = i;
+            }
             else if (parLevel == 0 && isBinOp(t)) {
                 // find BinOp at parentheses level 0 and lowest priority
                 int newPriority = BinOp.priorityFor(t);
@@ -45,6 +60,10 @@ public static class Syn {
         if (parLevel > 0) throw new Syn.Error(
             "Parenthesis never closed", tokens[firstOparIndex].position
         );
+
+        if (ternOpFirstIndex >= 0 && ternOpSecondIndex >= 0) {
+            return parseTernOp(ternOpFirstIndex, ternOpSecondIndex, tokens, start, len);
+        }
 
         if (binOpIndex >= 0) 
             return parseBinOp(binOpIndex, tokens, start, len);
@@ -91,10 +110,20 @@ public static class Syn {
             );
 
         int lhsLen = binOpIndex - start;
-        int rhsLen = len - 1 - lhsLen;
+        int rhsLen = len - (lhsLen + 1);
         Expr lhs = parseExpr(tokens, start, lhsLen);
         Expr rhs = parseExpr(tokens, binOpIndex + 1, rhsLen);
         return new BinOp(BinOp.kindFromToken(binOpToken), lhs, rhs);
+    }
+
+    private static TernOp parseTernOp(int firstIndex, int secondIndex, Token[] tokens, int start, int len) {
+        int arg0Len = firstIndex - start;
+        int arg1Len = secondIndex - (firstIndex + 1);
+        int arg2Len = len - (arg0Len + arg1Len + 2);
+        Expr arg0 = parseExpr(tokens, start, arg0Len);
+        Expr arg1 = parseExpr(tokens, firstIndex + 1, arg1Len);
+        Expr arg2 = parseExpr(tokens, secondIndex + 1, arg2Len);
+        return new TernOp(TernOp.Kind.CONDITIONAL, arg0, arg1, arg2);
     }
 
     private static bool isUnOp(Token t) {
@@ -118,9 +147,21 @@ public static class Syn {
             case Token.Kind.TIMES:
             case Token.Kind.CARET:
             case Token.Kind.EQUALS:
+            case Token.Kind.OPAR_ANG:
+            case Token.Kind.CPAR_ANG:
+            case Token.Kind.AND:
+            case Token.Kind.OR:
             return true;
         }
         return false;
+    }
+
+    private static bool isTernOpFirst(Token t) {
+        return t.kind == Token.Kind.QUESTION_MARK;
+    }
+
+    private static bool isTernOpSecond(Token t) {
+        return t.kind == Token.Kind.COLON;
     }
 
     public class Error : Exception {
