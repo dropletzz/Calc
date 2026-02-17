@@ -2,7 +2,7 @@
 public class BinOp : Expr {
 
     public enum Kind {
-        SUM, SUB, MUL, DIV, POW
+        SUM, SUB, MUL, DIV, POW, ASS
     }
 
     private Kind kind;
@@ -15,13 +15,20 @@ public class BinOp : Expr {
         this.r = r;
     }
 
-    public double eval() {
+    public double eval(Scope _) {
         switch (kind) {
-            case Kind.SUM: return l.eval() + r.eval();
-            case Kind.SUB: return l.eval() - r.eval();
-            case Kind.MUL: return l.eval() * r.eval();
-            case Kind.DIV: return l.eval() / r.eval();
-            case Kind.POW: return Math.Pow(l.eval(), r.eval());
+            case Kind.SUM: return l.eval(_) + r.eval(_);
+            case Kind.SUB: return l.eval(_) - r.eval(_);
+            case Kind.MUL: return l.eval(_) * r.eval(_);
+            case Kind.DIV: return l.eval(_) / r.eval(_);
+            case Kind.POW: return Math.Pow(l.eval(_), r.eval(_));
+            case Kind.ASS: {
+                if (l is not Identifier) throw new Exception("Only identifiers can be assigned");
+                Identifier id = (Identifier) l;
+                double val = r.eval(_);
+                _.set(id.name, val);
+                return val;
+            }
         }
         throw new Exception("BinOp.eval unimplemented for " + kind);
     }
@@ -33,6 +40,7 @@ public class BinOp : Expr {
             case Token.Kind.ASTERISK: case Token.Kind.TIMES: return Kind.MUL;
             case Token.Kind.SLASH: case Token.Kind.BY:       return Kind.DIV;
             case Token.Kind.CARET:                           return Kind.POW;
+            case Token.Kind.EQUALS:                          return Kind.ASS;
         }
         throw new Syn.Error("BinOp.kindFromToken unimplemented for '" + t.kind + "'", t.position);
     }
@@ -43,7 +51,8 @@ public class BinOp : Expr {
             case Kind.SUM: case Kind.SUB: return 0; // low priority
             case Kind.MUL: return 1;
             case Kind.DIV: return 2;
-            case Kind.POW: return 3; // high priority
+            case Kind.POW: return 3;
+            case Kind.ASS: return 4; // high priority
         }
         throw new Syn.Error("BinOp.priorityFor unimplemented for '" + kind + "'", t.position);
     }

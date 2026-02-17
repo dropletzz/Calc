@@ -60,6 +60,8 @@ public static class Syn {
         if (len == 1) {
             if (firstToken.kind == Token.Kind.NUMBER)
                 return new Literal(firstToken.value);
+            else if (firstToken.kind == Token.Kind.ID)
+                return new Identifier(firstToken.raw);
             else
                 throw new Syn.Error("Expected a literal", firstToken.position);
         }
@@ -115,6 +117,7 @@ public static class Syn {
             case Token.Kind.ASTERISK:
             case Token.Kind.TIMES:
             case Token.Kind.CARET:
+            case Token.Kind.EQUALS:
             return true;
         }
         return false;

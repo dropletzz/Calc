@@ -13,10 +13,10 @@ public class UnOp : Expr {
         this.arg = arg;
     }
 
-    public double eval() {
+    public double eval(Scope _) {
         switch (kind) {
-            case Kind.LOG: return Math.Log(arg.eval());
-            case Kind.SIN: return Math.Sin(arg.eval());
+            case Kind.LOG: return Math.Log(arg.eval(_));
+            case Kind.SIN: return Math.Sin(arg.eval(_));
         }
         throw new Exception("UnOp.eval unimplemented for " + kind);
     }

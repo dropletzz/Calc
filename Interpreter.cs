@@ -1,12 +1,15 @@
 class Interpreter {
-    public bool debug;
+    private bool debug;
+    private Scope globalScope;
 
     public Interpreter() {
         this.debug = false;
+        this.globalScope = new Scope();
     }
 
     public Interpreter(bool debug) {
         this.debug = debug;
+        this.globalScope = new Scope();
     }
 
     public double run(String code) {
@@ -17,6 +20,6 @@ class Interpreter {
         Expr expr = Syn.parse(tokens, length);
         if (debug) Console.WriteLine(expr);
 
-        return expr.eval();
+        return expr.eval(globalScope);
     }
 }

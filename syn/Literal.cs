@@ -6,7 +6,7 @@ public class Literal : Expr {
         this.value = value;
     }
 
-    public double eval() {
+    public double eval(Scope _) {
         return value;
     }
 

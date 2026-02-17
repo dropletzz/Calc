@@ -1,9 +1,9 @@
 public class Token {
 
     public enum Kind {
-        NUMBER, OPAR, CPAR,
+        NUMBER, ID, OPAR, CPAR,
         PLUS_SIGN, DASH, ASTERISK, SLASH, CARET,
-        PLUS, BY, TIMES, MINUS, LOG, SIN
+        PLUS, BY, TIMES, MINUS, LOG, SIN, EQUALS
     }
 
     public readonly Kind kind;

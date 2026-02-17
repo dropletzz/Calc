@@ -3,7 +3,7 @@ public static class Lex {
 
     public static readonly string[] SYMBOLS = {
         "+", "plus", "-", "minus", "*", "times", "/", "by",
-        "^", "log", "sin", "(", ")"
+        "^", "log", "sin", "(", ")", "="
     };
 
     public static readonly int MAX_TOKENS_LENGTH = 1024;
@@ -54,6 +54,19 @@ public static class Lex {
                 }
             }
 
+            // look for an identifier
+            if (!found) {
+                int startPosition = position;
+                position = chompIdentifier(s, position);
+
+                if (position > startPosition) {
+                    string rawToken = s.Substring(startPosition, position - startPosition);
+                    tokens[tokensLength] = parseIdentifier(rawToken, startPosition);
+                    tokensLength++;
+                    found = true;
+                }
+            }
+
             if (!found) throw new Error("Couldn't parse token", position);
 
             position = chompWhitespace(s, position);
@@ -67,6 +80,10 @@ public static class Lex {
         bool isNumber = Double.TryParse(rawToken, out value);
         if (!isNumber) throw new Lex.Error("Couldn't parse number", position);
         return new Token(position, rawToken, value);
+    }
+
+    public static Token parseIdentifier(string rawToken, int position) {
+        return new Token(Token.Kind.ID, position, rawToken);
     }
 
     public static Token parseSymbol(string rawToken, int position) {
@@ -85,6 +102,7 @@ public static class Lex {
             case "sin":   kind = Token.Kind.SIN; break;
             case "(":     kind = Token.Kind.OPAR; break;
             case ")":     kind = Token.Kind.CPAR; break;
+            case "=":     kind = Token.Kind.EQUALS; break;
             default: throw new Lex.Error("Couldn't parse symbol", position);
         }
 
@@ -96,8 +114,17 @@ public static class Lex {
         return c >= '0' && c <= '9';
     }
 
+    public static bool isAlpha(char c) {
+        return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
+    }
+
     public static bool isWhitespace(char c) {
-        return c == ' '; // the only whitespace allowed is spaces
+        // only spaces and tabs are considered whitespace
+        return c == ' ' || c == '\t';
+    }
+
+    public static bool isAlphanum(char c) {
+        return isDigit(c) || isAlpha(c);
     }
 
     public static int chompChar(char c, string s, int from) {
@@ -117,6 +144,15 @@ public static class Lex {
         while (
             from < s.Length
             && isDigit(s[from])
+        ) from++;
+        return from;
+    }
+
+    public static int chompIdentifier(string s, int from) {
+        if (!isAlpha(s[from])) return from;
+        while (
+            from < s.Length
+            && isAlphanum(s[from])
         ) from++;
         return from;
     }

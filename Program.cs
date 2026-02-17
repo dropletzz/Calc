@@ -41,6 +41,8 @@
             "log sin 1.57",
             "log 10 * 2 - sin 20 - 7",
             "3 plus 7 by 10",
+            "magic = 3",
+            "7 + (magic = 3)",
 
             // Tests for error messages
             "3/ ",
