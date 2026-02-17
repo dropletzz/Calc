@@ -45,6 +45,7 @@
 
             // Tests for error messages
             "3/ ",
+            "7 pl",
             "log 10 * 2 - sin 20 - 7 log",
             "log * 10 * 2 - sin 20 - 7 ",
             "(2 + 2) + 3 * ((2)",
