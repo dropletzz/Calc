@@ -91,7 +91,7 @@ public static class Syn {
     private static UnOp parseUnOp(int unOpIndex, Token[] tokens, int start, int len) {
         Token unOpToken = tokens[unOpIndex];
         if (len < 2)
-            throw new Syn.Error("Unary operator misses its agument", unOpToken.position);
+            throw new Syn.Error("Unary operator misses its argument", unOpToken.position);
         if (unOpIndex != start)
             if (tokens[start].kind == Token.Kind.NUMBER)
                 throw new Syn.Error("Unexpected token", tokens[start+1].position);
@@ -130,6 +130,7 @@ public static class Syn {
         switch (t.kind) {
             case Token.Kind.LOG:
             case Token.Kind.SIN:
+            case Token.Kind.NEG:
             return true;
         }
         return false;
