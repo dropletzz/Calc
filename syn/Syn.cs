@@ -1,9 +1,50 @@
 // Syntactic analyzer
 public static class Syn {
 
-    public static Expr parse(Token[] tokens, int len) {
+    public static Stmt parse(Token[] tokens, int len, Scope _) {
         if (len <= 0) throw new Syn.Error("Can't parse empty token list", 0);
-        return parseExpr(tokens, 0, len);
+        return parseBlock(tokens, 0, len, _);
+    }
+
+    private static Block parseBlock(Token[] tokens, int start, int len, Scope _) {
+        List<Stmt> statements = new List<Stmt>();
+
+        int cursor = start;
+        int stmtStart = start;
+        while (cursor < len) {
+            Token curToken = tokens[cursor];
+            if (curToken.kind == Token.Kind.SEMICOLON) {
+                int stmtLen = cursor - stmtStart;
+                if (stmtLen > 0) {
+                    Stmt s = parseStmt(tokens, stmtStart, stmtLen, _);
+                    statements.Add(s);
+                }
+                stmtStart = cursor + 1;
+            }
+            cursor++;
+        }
+
+        int unparsedLen = start + len - stmtStart;
+        if (unparsedLen > 0) {
+            Stmt s = parseStmt(tokens, stmtStart, unparsedLen, _);
+            statements.Add(s);
+        }
+
+        return new Block(statements, _);
+    }
+
+    private static Stmt parseStmt(Token[] tokens, int start, int len, Scope _) {
+        Token firstToken = tokens[start];
+
+        if (len > 2 && tokens[start].kind == Token.Kind.ID
+        &&  tokens[start + 1].kind == Token.Kind.ASSIGN) {
+            Token id = tokens[start];
+            Expr assignee = parseExpr(tokens, start + 2, len - 2);
+            return new Assignment(id.raw, assignee, _);
+        }
+
+        Expr expr = parseExpr(tokens, start, len);
+        return new ExprStmt(expr, _);
     }
 
     private static Expr parseExpr(Token[] tokens, int start, int len) {
@@ -146,7 +187,6 @@ public static class Syn {
             case Token.Kind.ASTERISK:
             case Token.Kind.TIMES:
             case Token.Kind.CARET:
-            case Token.Kind.EQUALS:
             case Token.Kind.OPAR_ANG:
             case Token.Kind.CPAR_ANG:
             case Token.Kind.AND:

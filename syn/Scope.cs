@@ -10,7 +10,13 @@ public class Scope {
         this.bindings[name] = value;
     }
 
-    public double get(string name) {
-        return this.bindings[name];
+    public bool get(string name, out double value) {
+        try {
+            value = this.bindings[name];
+            return true;
+        } catch (KeyNotFoundException _e) {
+            value = 0;
+            return false;
+        }
     }
 }

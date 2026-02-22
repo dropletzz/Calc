@@ -17,9 +17,9 @@ class Interpreter {
         Token[] tokens = Lex.tokenize(code, out length);
         if (debug) Console.WriteLine(string.Join(", ", tokens.Take(length)));
 
-        Expr expr = Syn.parse(tokens, length);
-        if (debug) Console.WriteLine(expr);
+        Stmt s = Syn.parse(tokens, length, globalScope);
+        if (debug) Console.WriteLine(s);
 
-        return expr.eval(globalScope);
+        return s.exec();
     }
 }
