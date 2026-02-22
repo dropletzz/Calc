@@ -3,7 +3,7 @@ public static class Lex {
 
     public static readonly string[] SYMBOLS = {
         "+", "plus", "-", "minus", "*", "times", "/", "by", "?", ":=", ":", ";",
-        "^", "log", "sin", "(", ")", "=", "<", ">", "and", "or"
+        "^", "log", "sin", "(", ")", "=", "<", ">", "and", "or", "print"
     };
 
     public static readonly int MAX_TOKENS_LENGTH = 1024;
@@ -111,6 +111,7 @@ public static class Lex {
             case ";":     kind = Token.Kind.SEMICOLON; break;
             case "and":   kind = Token.Kind.AND; break;
             case "or":    kind = Token.Kind.OR; break;
+            case "print":    kind = Token.Kind.PRINT; break;
             default: throw new Lex.Error("parseSymbol undefined for '" + rawToken + "'", position);
         }
 

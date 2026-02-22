@@ -43,7 +43,14 @@ public static class Syn {
             return new Assignment(id.raw, assignee, _);
         }
 
-        Expr expr = parseExpr(tokens, start, len);
+        Expr expr;
+
+        if (len > 1 && tokens[start].kind == Token.Kind.PRINT) {
+            expr = parseExpr(tokens, start + 1, len - 1);
+            return new Print(expr, _);
+        }
+
+        expr = parseExpr(tokens, start, len);
         return new ExprStmt(expr, _);
     }
 

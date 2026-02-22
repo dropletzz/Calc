@@ -3,7 +3,7 @@ public class Token {
     public enum Kind {
         NUMBER, ID, OPAR, CPAR, OPAR_ANG, CPAR_ANG, ASSIGN,
         PLUS_SIGN, DASH, ASTERISK, SLASH, CARET, QUESTION_MARK, COLON, SEMICOLON,
-        PLUS, BY, TIMES, MINUS, LOG, SIN, EQUALS, AND, OR
+        PLUS, BY, TIMES, MINUS, LOG, SIN, EQUALS, AND, OR, PRINT
     }
 
     public readonly Kind kind;
