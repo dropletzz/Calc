@@ -1,4 +1,3 @@
-
 public class Assignment : Stmt {
     private Identifier id;
     private Expr assignee;
@@ -8,8 +7,8 @@ public class Assignment : Stmt {
         this.assignee = assignee;
     }
 
-    public override double exec(Scope _) {
-        double result = assignee.eval(_);
+    public override Value exec(Scope _) {
+        Value result = assignee.eval(_);
         _.set(id.name, result);
         return result;
     }

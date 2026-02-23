@@ -1,4 +1,3 @@
-
 public class Print : Stmt {
     private Expr expr;
 
@@ -6,8 +5,8 @@ public class Print : Stmt {
         this.expr = expr;
     }
 
-    public override double exec(Scope _) {
-        double result = expr.eval(_);
+    public override Value exec(Scope _) {
+        Value result = expr.eval(_);
         Console.WriteLine(result);
         return result;
     }

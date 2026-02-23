@@ -1,12 +1,12 @@
 // A literal value
 public class Literal : Expr {
-    private double value;
+    private Value value;
 
-    public Literal(double value) {
+    public Literal(Value value) {
         this.value = value;
     }
 
-    public double eval(Scope _) {
+    public Value eval(Scope _) {
         return value;
     }
 

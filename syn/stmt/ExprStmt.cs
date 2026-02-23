@@ -1,4 +1,3 @@
-
 public class ExprStmt : Stmt {
     private Expr expr;
 
@@ -6,7 +5,7 @@ public class ExprStmt : Stmt {
         this.expr = expr;
     }
 
-    public override double exec(Scope _) {
+    public override Value exec(Scope _) {
         return expr.eval(_);
     }
 

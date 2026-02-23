@@ -15,19 +15,23 @@ public class BinOp : Expr {
         this.r = r;
     }
 
-    public double eval(Scope _) {
-        switch (kind) {
-            case Kind.SUM: return l.eval(_) + r.eval(_);
-            case Kind.SUB: return l.eval(_) - r.eval(_);
-            case Kind.MUL: return l.eval(_) * r.eval(_);
-            case Kind.DIV: return l.eval(_) / r.eval(_);
-            case Kind.POW: return Math.Pow(l.eval(_), r.eval(_));
-            case Kind.LT: return (l.eval(_) < r.eval(_)) ? 1 : 0;
-            case Kind.GT: return (l.eval(_) > r.eval(_)) ? 1 : 0;
-            case Kind.AND: return (l.eval(_) != 0 && r.eval(_) != 0) ? 1 : 0;
-            case Kind.OR: return (l.eval(_) != 0 || r.eval(_) != 0) ? 1 : 0;
+    public Value eval(Scope _) {
+        Value lval = l.eval(_);
+        Value rval = r.eval(_);
+        if (lval.kind == Value.Kind.Number && rval.kind == Value.Kind.Number) {
+            switch (kind) {
+                case Kind.SUM: return Value.number(lval.num + rval.num);
+                case Kind.SUB: return Value.number(lval.num - rval.num);
+                case Kind.MUL: return Value.number(lval.num * rval.num);
+                case Kind.DIV: return Value.number(lval.num / rval.num);
+                case Kind.POW: return Value.number(Math.Pow(lval.num, rval.num));
+                case Kind.LT: return Value.number((lval.num < rval.num) ? 1 : 0);
+                case Kind.GT: return Value.number((lval.num > rval.num) ? 1 : 0);
+                case Kind.AND: return Value.number((lval.num != 0 && rval.num != 0) ? 1 : 0);
+                case Kind.OR: return Value.number((lval.num != 0 || rval.num != 0) ? 1 : 0);
+            }
         }
-        throw new Exception("BinOp.eval unimplemented for " + kind);
+        throw new Exception("BinOp.eval unimplemented for "+lval.kind+" "+kind+" "+rval.kind);
     }
 
     public static Kind kindFromToken(Token t) {

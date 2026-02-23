@@ -21,6 +21,10 @@
     }
 
     public static void runTests() {
+        // string[] tests = {
+        //     // "x[1025] ; i := 0; while i < 1024 { x[i] := 0; print i; print x[i]; i := i+1 };",
+        //     "x := 24; x",
+        // };
         Console.WriteLine("---------------------");
         foreach (string test in tests) {
             Interpreter t = new Interpreter(true);
@@ -32,7 +36,7 @@
 
     private static void run(Interpreter t, string code) {
         try {
-            double result = t.run(code);
+            Value result = t.run(code);
             Console.WriteLine("= " + result);
         } catch (Lex.Error e) {
             for (int i = 0; i < e.position; i++) Console.Write(" ");

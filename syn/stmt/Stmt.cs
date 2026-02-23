@@ -1,4 +1,3 @@
-
 public abstract class Stmt {
-    public abstract double exec(Scope _);
+    public abstract Value exec(Scope _);
 }

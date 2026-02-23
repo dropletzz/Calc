@@ -6,11 +6,9 @@ public class Identifier : Expr {
         this.name = name;
     }
 
-    public double eval(Scope _) {
-        double value;
-        if (_.get(name, out value)) {
-            return value;
-        }
+    public Value eval(Scope _) {
+        Value value;
+        if (_.get(name, out value)) return value;
         throw new Exception("Undefined identifier '"+name+"'");
     }
 

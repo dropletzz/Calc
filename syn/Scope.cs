@@ -1,20 +1,19 @@
-
 public class Scope {
-    private Dictionary<string, double> bindings;
+    private Dictionary<string, Value> bindings;
     private Scope? parent;
 
     public Scope() {
-        this.bindings = new Dictionary<string, double>();
+        this.bindings = new Dictionary<string, Value>();
         this.parent = null;
     }
 
     public Scope(Scope parent) {
-        this.bindings = new Dictionary<string, double>();
+        this.bindings = new Dictionary<string, Value>();
         this.parent = parent;
     }
 
-    public void set(string name, double value) {
-        if (this.parent.isSet(name)) {
+    public void set(string name, Value value) {
+        if (this.parent != null && this.parent.isSet(name)) {
             this.parent.set(name, value);
         } else {
             this.bindings[name] = value;
@@ -27,16 +26,10 @@ public class Scope {
         return this.parent.isSet(name);
     }
 
-    public bool get(string name, out double value) {
-        try {
-            value = this.bindings[name];
-            return true;
-        } catch (KeyNotFoundException _e) {
-            if (this.parent != null) {
-                return this.parent.get(name, out value);
-            }
-            value = 0;
-            return false;
-        }
+    public bool get(string name, out Value value) {
+        if (this.bindings.TryGetValue(name, out value)) return true;
+        if (this.parent != null) return this.parent.get(name, out value);
+        value = new Value();
+        return false;
     }
 }

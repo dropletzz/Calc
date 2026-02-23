@@ -179,7 +179,7 @@ public static class Syn {
         // parse Literal
         if (len == 1) {
             if (firstToken.kind == Token.Kind.NUMBER)
-                return new Literal(firstToken.value);
+                return new Literal(Value.number(firstToken.value));
             else if (firstToken.kind == Token.Kind.ID)
                 return new Identifier(firstToken.raw);
             else
@@ -192,7 +192,7 @@ public static class Syn {
     private static UnOp parseUnOp(int unOpIndex, Token[] tokens, int start, int len) {
         Token unOpToken = tokens[unOpIndex];
         if (len < 2)
-            throw new Syn.Error("Unary operator misses its argument", unOpToken.position);
+            throw new Syn.Error("Unary operator misses its agument", unOpToken.position);
         if (unOpIndex != start)
             if (tokens[start].kind == Token.Kind.NUMBER)
                 throw new Syn.Error("Unexpected token", tokens[start+1].position);

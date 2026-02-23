@@ -17,16 +17,19 @@ public class TernOp : Expr {
         this.arg2 = arg2;
     }
 
-    public double eval(Scope _) {
-        switch (kind) {
-            case Kind.CONDITIONAL: {
-                if (arg0.eval(_) != 0.0)
-                    return arg1.eval(_);
-                else
-                    return arg2.eval(_);
+    public Value eval(Scope _) {
+        Value arg0Val = arg0.eval(_);
+        if (arg0Val.kind == Value.Kind.Number) {
+            switch (kind) {
+                case Kind.CONDITIONAL: {
+                    if (arg0Val.num != 0.0)
+                        return arg1.eval(_);
+                    else
+                        return arg2.eval(_);
+                }
             }
         }
-        throw new Exception("TernOp.eval unimplemented for " + kind);
+        throw new Exception("TernOp.eval unimplemented for " + kind + " " + arg0Val.kind);
     }
 
     public static Kind kindFromTokens(Token a, Token b) {
