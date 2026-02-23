@@ -2,7 +2,7 @@
 public class BinOp : Expr {
 
     public enum Kind {
-        SUM, SUB, MUL, DIV, POW, ASS, GT, LT, AND, OR
+        SUM, SUB, MUL, DIV, POW, GT, LT, AND, OR
     }
 
     private Kind kind;
@@ -26,13 +26,6 @@ public class BinOp : Expr {
             case Kind.GT: return (l.eval(_) > r.eval(_)) ? 1 : 0;
             case Kind.AND: return (l.eval(_) != 0 && r.eval(_) != 0) ? 1 : 0;
             case Kind.OR: return (l.eval(_) != 0 || r.eval(_) != 0) ? 1 : 0;
-            case Kind.ASS: {
-                if (l is not Identifier) throw new Exception("Only identifiers can be assigned");
-                Identifier id = (Identifier) l;
-                double val = r.eval(_);
-                _.set(id.name, val);
-                return val;
-            }
         }
         throw new Exception("BinOp.eval unimplemented for " + kind);
     }
@@ -44,7 +37,6 @@ public class BinOp : Expr {
             case Token.Kind.ASTERISK: case Token.Kind.TIMES: return Kind.MUL;
             case Token.Kind.SLASH: case Token.Kind.BY:       return Kind.DIV;
             case Token.Kind.CARET:                           return Kind.POW;
-            case Token.Kind.EQUALS:                          return Kind.ASS;
             case Token.Kind.OPAR_ANG:                        return Kind.LT;
             case Token.Kind.CPAR_ANG:                        return Kind.GT;
             case Token.Kind.AND:                             return Kind.AND;
@@ -62,7 +54,6 @@ public class BinOp : Expr {
             case Kind.MUL: return 1;
             case Kind.DIV: return 2;
             case Kind.POW: return 3;
-            case Kind.ASS: return 4; // high priority
         }
         throw new Syn.Error("BinOp.priorityFor unimplemented for '" + kind + "'", t.position);
     }

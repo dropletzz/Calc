@@ -7,10 +7,14 @@ public class Identifier : Expr {
     }
 
     public double eval(Scope _) {
-        return _.get(name);
+        double value;
+        if (_.get(name, out value)) {
+            return value;
+        }
+        throw new Exception("Undefined identifier '"+name+"'");
     }
 
     public override string ToString() {
-        return '"' + name + '"';
+        return name;
     }
 }

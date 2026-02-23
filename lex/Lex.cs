@@ -2,8 +2,9 @@
 public static class Lex {
 
     public static readonly string[] SYMBOLS = {
-        "+", "plus", "-", "minus", "*", "times", "/", "by", "?", ":",
-        "^", "log", "sin", "(", ")", "=", "<", ">", "and", "or", "neg"
+        "+", "plus", "-", "minus", "*", "times", "/", "by", "?", ":=", ":", ";",
+        "^", "log", "sin", "neg", "(", ")", "=", "<", ">", "and", "or", "print",
+        "while", "{", "}"
     };
 
     public static readonly int MAX_TOKENS_LENGTH = 1024;
@@ -106,10 +107,16 @@ public static class Lex {
             case "<":     kind = Token.Kind.OPAR_ANG; break;
             case ">":     kind = Token.Kind.CPAR_ANG; break;
             case "?":     kind = Token.Kind.QUESTION_MARK; break;
+            case ":=":     kind = Token.Kind.ASSIGN; break;
             case ":":     kind = Token.Kind.COLON; break;
+            case ";":     kind = Token.Kind.SEMICOLON; break;
             case "and":   kind = Token.Kind.AND; break;
             case "or":    kind = Token.Kind.OR; break;
             case "neg":   kind = Token.Kind.NEG; break;
+            case "print":    kind = Token.Kind.PRINT; break;
+            case "while":    kind = Token.Kind.WHILE; break;
+            case "{":    kind = Token.Kind.OPAR_CURLY; break;
+            case "}":    kind = Token.Kind.CPAR_CURLY; break;
             default: throw new Lex.Error("parseSymbol undefined for '" + rawToken + "'", position);
         }
 

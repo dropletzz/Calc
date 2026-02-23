@@ -1,9 +1,110 @@
 // Syntactic analyzer
 public static class Syn {
 
-    public static Expr parse(Token[] tokens, int len) {
+    public static Stmt parse(Token[] tokens, int len) {
         if (len <= 0) throw new Syn.Error("Can't parse empty token list", 0);
-        return parseExpr(tokens, 0, len);
+        return parseBlock(tokens, 0, len);
+    }
+
+    private static Block parseBlock(Token[] tokens, int start, int len) {
+        List<Stmt> statements = new List<Stmt>();
+
+        int cursor = start;
+        int stmtStart = start;
+        int blockLevel = 0;
+        int blockOparIndex = -1;
+        while (cursor < start + len) {
+            Token curToken = tokens[cursor];
+            if (curToken.kind == Token.Kind.OPAR_CURLY) {
+                blockLevel++;
+                if (blockOparIndex < 0) blockOparIndex = cursor;
+            }
+            else if (curToken.kind == Token.Kind.CPAR_CURLY) {
+                blockLevel--;
+                if (blockLevel == 0) {
+                    int stmtLen = cursor - stmtStart + 1;
+                    Stmt blockStmt = parseStmt(tokens, stmtStart, stmtLen);
+                    statements.Add(blockStmt);
+                    stmtStart = cursor + 1;
+                }
+            }
+            else if (curToken.kind == Token.Kind.SEMICOLON && blockLevel == 0) {
+                int stmtLen = cursor - stmtStart;
+                if (stmtLen > 0) {
+                    Stmt s = parseStmt(tokens, stmtStart, stmtLen);
+                    statements.Add(s);
+                }
+                stmtStart = cursor + 1;
+            }
+            if (blockLevel < 0) throw new Syn.Error("Block never opened", curToken.position);
+            cursor++;
+        }
+
+        if (blockLevel > 0) throw new Syn.Error("Block never closed", tokens[blockOparIndex].position);
+
+        int unparsedLen = start + len - stmtStart;
+        if (unparsedLen > 0) {
+            Stmt s = parseStmt(tokens, stmtStart, unparsedLen);
+            statements.Add(s);
+        }
+
+        return new Block(statements);
+    }
+
+    private static Stmt parseStmt(Token[] tokens, int start, int len) {
+        Token firstToken = tokens[start];
+
+        // Assignment
+        if (len > 2 && firstToken.kind == Token.Kind.ID
+        &&  tokens[start + 1].kind == Token.Kind.ASSIGN) {
+            Identifier id = new Identifier(firstToken.raw);
+            Expr assignee = parseExpr(tokens, start + 2, len - 2);
+            return new Assignment(id, assignee);
+        }
+
+        Expr expr;
+
+        // Print
+        if (len > 1 && firstToken.kind == Token.Kind.PRINT) {
+            expr = parseExpr(tokens, start + 1, len - 1);
+            return new Print(expr);
+        }
+
+        // While
+        if (len > 0 && firstToken.kind == Token.Kind.WHILE) {
+            int cursor = start + 1;
+
+            while (
+                cursor < start + len
+                && tokens[cursor].kind != Token.Kind.OPAR_CURLY
+            ) cursor++;
+
+            if (cursor == start)
+                throw new Syn.Error("Missing condition after while", tokens[cursor].position);
+            if (cursor == start + len) 
+                throw new Syn.Error("Missing '{' after condition", tokens[cursor - 1].position);
+
+            int blockStart = cursor;
+            Expr cond = parseExpr(tokens, start + 1, cursor - start - 1);
+
+            if (tokens[start + len - 1].kind != Token.Kind.CPAR_CURLY)
+                throw new Syn.Error("Open block never closed", tokens[blockStart].position);
+
+            int blockLen = start + len - blockStart - 2;
+            Block body = parseBlock(tokens, blockStart + 1, blockLen);
+
+            return new While(cond, body);
+        }
+
+        // Block
+        if (
+            len > 1 && tokens[start].kind == Token.Kind.OPAR_CURLY
+            && tokens[start + len - 1].kind == Token.Kind.CPAR_CURLY
+        ) return parseBlock(tokens, start + 1, len - 2);
+
+        // ExprStmt
+        expr = parseExpr(tokens, start, len);
+        return new ExprStmt(expr);
     }
 
     private static Expr parseExpr(Token[] tokens, int start, int len) {
@@ -147,7 +248,6 @@ public static class Syn {
             case Token.Kind.ASTERISK:
             case Token.Kind.TIMES:
             case Token.Kind.CARET:
-            case Token.Kind.EQUALS:
             case Token.Kind.OPAR_ANG:
             case Token.Kind.CPAR_ANG:
             case Token.Kind.AND:
