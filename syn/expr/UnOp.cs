@@ -2,7 +2,7 @@
 public class UnOp : Expr {
     
     public enum Kind {
-        LOG, SIN, NEG
+        LOG, SIN, NEG, IDX
     }
 
     private Kind kind;

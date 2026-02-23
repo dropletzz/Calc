@@ -1,6 +1,6 @@
 public class Assignment : Stmt {
-    private Identifier id;
-    private Expr assignee;
+    protected Identifier id;
+    protected Expr assignee;
 
     public Assignment(Identifier id, Expr assignee) {
         this.id = id;

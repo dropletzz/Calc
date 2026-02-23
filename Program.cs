@@ -21,10 +21,10 @@
     }
 
     public static void runTests() {
-        // string[] tests = {
-        //     // "x[1025] ; i := 0; while i < 1024 { x[i] := 0; print i; print x[i]; i := i+1 };",
-        //     "x := 24; x",
-        // };
+        string[] tests = {
+            // "[24]x; i := 0; while (i < 24) { [i]x := i*i; i := i + 1 }; i := 0; while (i < 24) { print [i]x; i := i+1 }",
+            "[10]x; [3]x := 12; x",
+        };
         Console.WriteLine("---------------------");
         foreach (string test in tests) {
             Interpreter t = new Interpreter(true);

@@ -4,7 +4,7 @@ public static class Lex {
     public static readonly string[] SYMBOLS = {
         "+", "plus", "-", "minus", "*", "times", "/", "by", "?", ":=", ":", ";",
         "^", "log", "sin", "neg", "(", ")", "=", "<", ">", "and", "or", "print",
-        "while", "{", "}"
+        "while", "{", "}", "[", "]"
     };
 
     public static readonly int MAX_TOKENS_LENGTH = 1024;
@@ -117,6 +117,8 @@ public static class Lex {
             case "while":    kind = Token.Kind.WHILE; break;
             case "{":    kind = Token.Kind.OPAR_CURLY; break;
             case "}":    kind = Token.Kind.CPAR_CURLY; break;
+            case "[":    kind = Token.Kind.OPAR_SQUARE; break;
+            case "]":    kind = Token.Kind.CPAR_SQUARE; break;
             default: throw new Lex.Error("parseSymbol undefined for '" + rawToken + "'", position);
         }
 

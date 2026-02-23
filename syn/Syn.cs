@@ -63,10 +63,53 @@ public static class Syn {
             return new Assignment(id, assignee);
         }
 
+        // IndexedAssignment
+        if (len > 1 && firstToken.kind == Token.Kind.OPAR_SQUARE
+        ) {
+            // TODO this is very much duplicated (see parseExpr IndexedArray)
+            int cparIndex = start;
+            while (cparIndex < start + len
+                && tokens[cparIndex].kind != Token.Kind.CPAR_SQUARE
+            ) cparIndex++;
+
+            if (cparIndex >= start + len)
+                throw new Syn.Error("missing ']'", tokens[start + len - 1].position);
+            if (cparIndex + 1 < start + len
+                && tokens[cparIndex + 1].kind != Token.Kind.ID
+            ) throw new Syn.Error("Should be an identifier", tokens[cparIndex + 1].position);
+
+            int indExprLen = cparIndex - start - 1;
+            IndexedArray idx = new IndexedArray(
+                parseExpr(tokens, start + 1, indExprLen), // index
+                new Identifier(tokens[cparIndex + 1].raw)
+            );
+
+            if (cparIndex + 2 < start+len
+                && tokens[cparIndex + 2].kind == Token.Kind.ASSIGN
+            ) {
+                int assStart = cparIndex + 3;
+                int assLength = start + len - assStart;
+                Expr assignee = parseExpr(tokens, assStart, assLength);
+                return new IndexedAssignment(idx, assignee);
+            }
+        }
+
         // Print
         if (len > 1 && firstToken.kind == Token.Kind.PRINT) {
             Expr expr = parseExpr(tokens, start + 1, len - 1);
             return new Print(expr);
+        }
+
+        // ArrayDecl
+        if (len == 4
+            && tokens[start].kind == Token.Kind.OPAR_SQUARE
+            && tokens[start+1].kind == Token.Kind.NUMBER
+            && tokens[start+2].kind == Token.Kind.CPAR_SQUARE
+            && tokens[start+3].kind == Token.Kind.ID
+        ) {
+            int capacity = (int)tokens[start+1].value;
+            Identifier id = new Identifier(tokens[start+3].raw);
+            return new ArrayDecl(capacity, id);
         }
 
         // While
@@ -188,7 +231,7 @@ public static class Syn {
         throw new Syn.Error("Could not parse", firstToken.position);
     }
 
-    private static UnOp parseUnOp(int unOpIndex, Token[] tokens, int start, int len) {
+    private static Expr parseUnOp(int unOpIndex, Token[] tokens, int start, int len) {
         Token unOpToken = tokens[unOpIndex];
         if (len < 2)
             throw new Syn.Error("Unary operator misses its agument", unOpToken.position);
@@ -197,6 +240,27 @@ public static class Syn {
                 throw new Syn.Error("Unexpected token", tokens[start+1].position);
             else
                 throw new Syn.Error("Unexpected token", tokens[start].position);
+
+        // IndexedArray
+        if (unOpToken.kind == Token.Kind.OPAR_SQUARE) {
+            int cparIndex = start;
+            while (cparIndex < start + len
+                && tokens[cparIndex].kind != Token.Kind.CPAR_SQUARE
+            ) cparIndex++;
+
+            if (cparIndex >= start + len)
+                throw new Syn.Error("missing ']'", tokens[start + len - 1].position);
+            if (cparIndex + 1 < start + len
+                && tokens[cparIndex + 1].kind != Token.Kind.ID
+            ) throw new Syn.Error("Should be an identifier", tokens[cparIndex + 1].position);
+            if (cparIndex + 2 < start + len)
+                throw new Syn.Error("Unexpected token", tokens[cparIndex + 2].position);
+
+            int indExprLen = cparIndex - start - 1;
+            Expr indExpr = parseExpr(tokens, start + 1, indExprLen);
+            Identifier id = new Identifier(tokens[cparIndex + 1].raw);
+            return new IndexedArray(indExpr, id);
+        }
 
         Expr arg = parseExpr(tokens, start + 1, len - 1);
         return new UnOp(UnOp.kindFromToken(unOpToken), arg);
@@ -231,6 +295,7 @@ public static class Syn {
             case Token.Kind.LOG:
             case Token.Kind.SIN:
             case Token.Kind.NEG:
+            case Token.Kind.OPAR_SQUARE:
             return true;
         }
         return false;

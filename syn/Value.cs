@@ -1,3 +1,5 @@
+using System.Buffers;
+
 public readonly struct Value {
     public enum Kind {
         Number,
@@ -7,12 +9,21 @@ public readonly struct Value {
 
     public readonly Kind kind;
     public readonly double num;
-    public readonly List<double>? arr;
+    public readonly double[] arr;
+    public readonly int capacity;
 
-    private Value(Kind kind, double num, List<double>? arr) {
+    private Value(Kind kind, double num, double[] arr) {
         this.kind = kind;
         this.num = num;
         this.arr = arr;
+        this.capacity = 0;
+    }
+
+    private Value(Kind kind, double[] arr, int capacity) {
+        this.kind = kind;
+        this.num = num;
+        this.arr = arr;
+        this.capacity = capacity;
     }
 
     public static Value nil() {
@@ -23,8 +34,10 @@ public readonly struct Value {
         return new Value(Kind.Number, num, null);
     }
 
-    public static Value array(List<double> arr) {
-        return new Value(Kind.Array, 0, arr);
+    public static Value array(int capacity) {
+        double[] arr = ArrayPool<double>.Shared.Rent(capacity); 
+        // ArrayPool<double>.Shared.Return(arr);
+        return new Value(Kind.Array, arr, capacity);
     }
 
     public override string ToString() {
