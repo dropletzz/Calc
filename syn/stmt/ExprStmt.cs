@@ -2,11 +2,11 @@
 public class ExprStmt : Stmt {
     private Expr expr;
 
-    public ExprStmt(Expr expr, Scope _) : base(_) {
+    public ExprStmt(Expr expr) {
         this.expr = expr;
     }
 
-    public override double exec() {
+    public override double exec(Scope _) {
         return expr.eval(_);
     }
 

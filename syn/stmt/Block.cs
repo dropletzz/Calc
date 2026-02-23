@@ -1,23 +1,24 @@
 public class Block : Stmt {
     public List<Stmt> statements;
 
-    public Block(List<Stmt> statements, Scope _) : base(_) {
+    public Block(List<Stmt> statements) {
         this.statements = statements;
     }
 
-    public override double exec() {
+    public override double exec(Scope _) {
+        Scope blockScope = new Scope(_);
         double result = 0;
         foreach (Stmt s in statements) {
-            result = s.exec();
+            result = s.exec(blockScope);
         }
         return result;
     }
 
     public override string ToString() {
-        string res = "";
+        string res = "{ ";
         foreach (Stmt s in statements) {
-            res += s.ToString() + '\n';
+            res += s.ToString() + "; ";
         }
-        return res;
+        return res + "}";
     }
 }

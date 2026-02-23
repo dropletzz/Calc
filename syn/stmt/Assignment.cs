@@ -1,20 +1,20 @@
 
 public class Assignment : Stmt {
-    private string name;
+    private Identifier id;
     private Expr assignee;
 
-    public Assignment(string name, Expr assignee, Scope _) : base(_) {
-        this.name = name;
+    public Assignment(Identifier id, Expr assignee) {
+        this.id = id;
         this.assignee = assignee;
     }
 
-    public override double exec() {
+    public override double exec(Scope _) {
         double result = assignee.eval(_);
-        _.set(name, result);
+        _.set(id.name, result);
         return result;
     }
 
     public override string ToString() {
-        return "ASSIGN " + assignee + " TO " + name;
+        return "ASSIGN " + assignee + " TO " + id;
     }
 }
