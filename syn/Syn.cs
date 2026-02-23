@@ -102,13 +102,13 @@ public static class Syn {
 
         // ArrayDecl
         if (len == 4
-            && tokens[start].kind == Token.Kind.OPAR_SQUARE
-            && tokens[start+1].kind == Token.Kind.NUMBER
-            && tokens[start+2].kind == Token.Kind.CPAR_SQUARE
-            && tokens[start+3].kind == Token.Kind.ID
+            && tokens[start].kind == Token.Kind.ID
+            && tokens[start+1].kind == Token.Kind.OPAR_SQUARE
+            && tokens[start+2].kind == Token.Kind.NUMBER
+            && tokens[start+3].kind == Token.Kind.CPAR_SQUARE
         ) {
-            int capacity = (int)tokens[start+1].value;
-            Identifier id = new Identifier(tokens[start+3].raw);
+            Identifier id = new Identifier(tokens[start].raw);
+            int capacity = (int)tokens[start+2].value;
             return new ArrayDecl(capacity, id);
         }
 
