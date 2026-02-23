@@ -29,6 +29,7 @@ public class UnOp : Expr {
         switch (t.kind) {
             case Token.Kind.LOG: return Kind.LOG;
             case Token.Kind.SIN: return Kind.SIN;
+            case Token.Kind.NEG: return Kind.NEG;
         }
         throw new Syn.Error("UnOp.kindFromToken unimplemented for '" + t.kind + "'", t.position);
     }
