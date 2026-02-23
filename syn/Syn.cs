@@ -3,10 +3,11 @@ public static class Syn {
 
     public static Stmt parse(Token[] tokens, int len) {
         if (len <= 0) throw new Syn.Error("Can't parse empty token list", 0);
-        return parseBlock(tokens, 0, len);
+        return parseStmtList(tokens, 0, len);
     }
 
-    private static Block parseBlock(Token[] tokens, int start, int len) {
+    // Statements have to be separated with ';' with the exception of the last one (in each Block)
+    private static StmtList parseStmtList(Token[] tokens, int start, int len) {
         List<Stmt> statements = new List<Stmt>();
 
         int cursor = start;
@@ -15,19 +16,9 @@ public static class Syn {
         int blockOparIndex = -1;
         while (cursor < start + len) {
             Token curToken = tokens[cursor];
-            if (curToken.kind == Token.Kind.OPAR_CURLY) {
-                blockLevel++;
-                if (blockOparIndex < 0) blockOparIndex = cursor;
-            }
-            else if (curToken.kind == Token.Kind.CPAR_CURLY) {
-                blockLevel--;
-                if (blockLevel == 0) {
-                    int stmtLen = cursor - stmtStart + 1;
-                    Stmt blockStmt = parseStmt(tokens, stmtStart, stmtLen);
-                    statements.Add(blockStmt);
-                    stmtStart = cursor + 1;
-                }
-            }
+
+            if (curToken.kind == Token.Kind.OPAR_CURLY) blockLevel++;
+            else if (curToken.kind == Token.Kind.CPAR_CURLY) blockLevel--;
             else if (curToken.kind == Token.Kind.SEMICOLON && blockLevel == 0) {
                 int stmtLen = cursor - stmtStart;
                 if (stmtLen > 0) {
@@ -36,7 +27,11 @@ public static class Syn {
                 }
                 stmtStart = cursor + 1;
             }
+
+            if (curToken.kind == Token.Kind.OPAR_CURLY
+                && blockOparIndex < 0) blockOparIndex = cursor;
             if (blockLevel < 0) throw new Syn.Error("Block never opened", curToken.position);
+
             cursor++;
         }
 
@@ -48,6 +43,12 @@ public static class Syn {
             statements.Add(s);
         }
 
+        return new StmtList(statements);
+    }
+
+    // Block is different from StmtList because it creates a child Scope during execution
+    private static Block parseBlock(Token[] tokens, int start, int len) {
+        StmtList statements = parseStmtList(tokens, start, len);
         return new Block(statements);
     }
 
@@ -62,11 +63,9 @@ public static class Syn {
             return new Assignment(id, assignee);
         }
 
-        Expr expr;
-
         // Print
         if (len > 1 && firstToken.kind == Token.Kind.PRINT) {
-            expr = parseExpr(tokens, start + 1, len - 1);
+            Expr expr = parseExpr(tokens, start + 1, len - 1);
             return new Print(expr);
         }
 
@@ -103,8 +102,8 @@ public static class Syn {
         ) return parseBlock(tokens, start + 1, len - 2);
 
         // ExprStmt
-        expr = parseExpr(tokens, start, len);
-        return new ExprStmt(expr);
+        Expr exprStmt = parseExpr(tokens, start, len);
+        return new ExprStmt(exprStmt);
     }
 
     private static Expr parseExpr(Token[] tokens, int start, int len) {

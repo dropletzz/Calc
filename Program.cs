@@ -84,8 +84,8 @@
         "x:=4; x < 0 or x > 2 ? 1 : 0",
 
         "x := 37; while x > 3 { print x; x := x - 10 }",
-        "{ in := 2 } 3",
-        "outer := 1; { inner := 12; outer := outer + 1; print inner } print outer",
+        "{ in := 2 }; 3",
+        "outer := 1; { inner := 12; outer := outer + 1; print inner }; print outer",
 
         // Error messages
         "3/ ",
