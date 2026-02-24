@@ -46,12 +46,6 @@ public static class Syn {
         return new StmtList(statements);
     }
 
-    // Block is different from StmtList because it creates a child Scope during execution
-    private static Block parseBlock(Token[] tokens, int start, int len) {
-        StmtList statements = parseStmtList(tokens, start, len);
-        return new Block(statements);
-    }
-
     private static Stmt parseStmt(Token[] tokens, int start, int len) {
         Token firstToken = tokens[start];
 
@@ -121,8 +115,8 @@ public static class Syn {
                 throw new Syn.Error("Open block never closed", tokens[blockStart].position);
 
             int blockLen = start + len - blockStart - 2;
-            Block body = parseBlock(tokens, blockStart + 1, blockLen);
-
+            StmtList statements = parseStmtList(tokens, blockStart + 1, blockLen);
+            Block body = new Block(statements);
             return new While(cond, body);
         }
 
@@ -130,7 +124,10 @@ public static class Syn {
         if (
             len > 1 && tokens[start].kind == Token.Kind.OPAR_CURLY
             && tokens[start + len - 1].kind == Token.Kind.CPAR_CURLY
-        ) return parseBlock(tokens, start + 1, len - 2);
+        ) {
+            StmtList statements = parseStmtList(tokens, start + 1, len - 2);
+            return new Block(statements);
+        }
 
         // ExprStmt
         Expr exprStmt = parseExpr(tokens, start, len);
