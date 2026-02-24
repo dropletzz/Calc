@@ -9,22 +9,31 @@ public class IndexedArray : Expr {
     }
 
     public Value eval(Scope _) {
+        var (i, val) = ival(_);
+        return Value.number(val.arr[i]);
+    }
+
+    public void set(double num, Scope _) {
+        var (i, val) = ival(_);
+        val.arr[i] = num;
+    }
+
+    private (int i, Value val) ival(Scope _) {
         Value index = indExpr.eval(_);
         if (index.kind != Value.Kind.Number)
             throw new Exception("Can't use " + index.kind + " as an index");
+        int i = (int)index.num;
 
-        Value array;
-        if (_.get(id.name, out array)) {
-            if (array.kind == Value.Kind.Array) {
-                int i = (int)index.num;
-                if (i < 0 || i >= array.capacity)
+        Value val;
+        if (_.get(id.name, out val)) {
+            if (val.kind == Value.Kind.Array) {
+                if (i < 0 || i >= val.capacity)
                     throw new Exception("Index '" + i + "' is out of bounds");
-
-                double result = array.arr[i];
-                return Value.number(result);
+                return (i, val);
             }
-            else throw new Exception("Can't index value of type " + array.kind);
+            throw new Exception("Can't index value of type " + val.kind);
         }
+
         throw new Exception("'"+id.name+"' is undefined in the current scope");
     }
 
