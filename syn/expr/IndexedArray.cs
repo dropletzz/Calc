@@ -26,12 +26,11 @@ public class IndexedArray : Expr {
 
         Value val;
         if (_.get(id.name, out val)) {
-            if (val.kind == Value.Kind.Array) {
-                if (i < 0 || i >= val.capacity)
-                    throw new Exception("Index '" + i + "' is out of bounds");
-                return (i, val);
-            }
-            throw new Exception("Can't index value of type " + val.kind);
+            if (val.kind != Value.Kind.Array) 
+                throw new Exception("Can't index value of type " + val.kind);
+            if (i < 0 || i >= val.capacity)
+                throw new Exception("Index '" + i + "' is out of bounds");
+            return (i, val);
         }
 
         throw new Exception("'"+id.name+"' is undefined in the current scope");
