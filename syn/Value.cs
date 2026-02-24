@@ -3,8 +3,7 @@ using System.Buffers;
 public readonly struct Value {
     public enum Kind {
         Number,
-        Array,
-        Nil
+        Array
     }
 
     public readonly Kind kind;
@@ -24,10 +23,6 @@ public readonly struct Value {
         this.num = num;
         this.arr = arr;
         this.capacity = capacity;
-    }
-
-    public static Value nil() {
-        return new Value(Kind.Nil, 0, null);
     }
 
     public static Value number(double num) {
@@ -52,6 +47,6 @@ public readonly struct Value {
             result += arr[i] + " ]"; 
             return result;
         }
-        return "Nil";
+        return kind.ToString();
     }
 }
