@@ -36,8 +36,11 @@ public readonly struct Value {
 
     public static Value array(int capacity) {
         double[] arr = ArrayPool<double>.Shared.Rent(capacity); 
-        // ArrayPool<double>.Shared.Return(arr);
         return new Value(Kind.Array, arr, capacity);
+    }
+
+    public void freeArray() {
+        ArrayPool<double>.Shared.Return(arr);
     }
 
     public override string ToString() {

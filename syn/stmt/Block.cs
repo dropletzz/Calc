@@ -11,7 +11,9 @@ public class Block : Stmt {
 
     public override Value exec(Scope _) {
         Scope blockScope = new Scope(_);
-        return this.statements.exec(blockScope);
+        Value result = this.statements.exec(blockScope);
+        blockScope.exit();
+        return result;
     }
 
     public override string ToString() {

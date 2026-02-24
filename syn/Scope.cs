@@ -32,4 +32,10 @@ public class Scope {
         value = new Value();
         return false;
     }
+
+    public void exit() {
+        foreach (var (name, val) in bindings) {
+            if (val.kind == Value.Kind.Array) val.freeArray();
+        }
+    }
 }
