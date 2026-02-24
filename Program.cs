@@ -21,11 +21,8 @@
     }
 
     public static void runTests() {
-        string[] tests = {
-            // "[24]x; i := 0; while (i < 24) { [i]x := i*i; i := i + 1 }; i := 0; while (i < 24) { print [i]x; i := i+1 }",
-            "x[10]; [3]x := 12; x",
-            "x[10]; [3]x := 12; [3]x",
-        };
+        // string[] tests = {
+        // };
         Console.WriteLine("---------------------");
         foreach (string test in tests) {
             Interpreter t = new Interpreter(true);
@@ -87,6 +84,12 @@
         "x := 37; while x > 3 { print x; x := x - 10 }",
         "{ in := 2 }; 3",
         "outer := 1; { inner := 12; outer := outer + 1; print inner }; print outer",
+
+        "x[6]; i := 0; while (i < 6) { [i]x := i*i; i := i+1 }; i := 0; while (i < 6) { print [i]x; i := i+1 }",
+        "x[12]; [4]x:=37",
+        "x[12]; [4]x:=37; [4]x",
+        "x[12]; [4]x:=37;[2+2]x",
+        "x[12]; [4]x:=37;[2*12]x",
 
         // Error messages
         "3/ ",

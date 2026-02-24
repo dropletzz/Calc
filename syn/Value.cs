@@ -42,7 +42,13 @@ public readonly struct Value {
 
     public override string ToString() {
         if (kind == Kind.Number) return num.ToString();
-        if (arr != null && kind == Kind.Array) return "[" + string.Join(", ", arr) + "]"; 
+        if (arr != null && kind == Kind.Array) {
+            int i = 0;
+            string result = "[ ";
+            while (i++ < capacity-1) result += arr[i] + ", ";
+            result += arr[i] + " ]"; 
+            return result;
+        }
         return "Nil";
     }
 }
