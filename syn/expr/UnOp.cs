@@ -2,7 +2,7 @@
 public class UnOp : Expr {
     
     public enum Kind {
-        LOG, SIN, NEG, IDX
+        LOG, SIN, NEG, LEN
     }
 
     private Kind kind;
@@ -22,6 +22,11 @@ public class UnOp : Expr {
                 case Kind.NEG: return Value.number(-val.num);
             }
         }
+        else if (val.kind == Value.Kind.Array) {
+            switch (kind) {
+                case Kind.LEN: return Value.number(val.capacity);
+            }
+        }
         throw new Exception("UnOp.eval unimplemented for " + kind + " " + val.kind);
     }
 
@@ -30,6 +35,7 @@ public class UnOp : Expr {
             case Token.Kind.LOG: return Kind.LOG;
             case Token.Kind.SIN: return Kind.SIN;
             case Token.Kind.NEG: return Kind.NEG;
+            case Token.Kind.LEN: return Kind.LEN;
         }
         throw new Syn.Error("UnOp.kindFromToken unimplemented for '" + t.kind + "'", t.position);
     }

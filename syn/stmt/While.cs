@@ -1,8 +1,8 @@
 public class While : Stmt {
     private Expr cond;
-    private Block body;
+    private Stmt body;
 
-    public While(Expr cond, Block body) {
+    public While(Expr cond, Stmt body) {
         this.cond = cond;
         this.body = body;
     }

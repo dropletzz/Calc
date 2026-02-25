@@ -96,26 +96,18 @@ public static class Syn {
 
         // While
         if (len > 0 && firstToken.kind == Token.Kind.WHILE) {
-            int cursor = start + 1;
+            int cursor = next(Token.Kind.OPAR_CURLY, tokens, start, len);
 
-            while (
-                cursor < start + len
-                && tokens[cursor].kind != Token.Kind.OPAR_CURLY
-            ) cursor++;
+            if (cursor >= start + len) 
+                throw new Syn.Error("Missing block after condition", tokens[cursor - 1].position);
+            if (tokens[start + len - 1].kind != Token.Kind.CPAR_CURLY)
+                throw new Syn.Error("Open block never closed", tokens[cursor].position);
 
-            if (cursor == start)
-                throw new Syn.Error("Missing condition after while", tokens[cursor].position);
-            if (cursor == start + len) 
-                throw new Syn.Error("Missing '{' after condition", tokens[cursor - 1].position);
-
-            int blockStart = cursor;
             Expr cond = parseExpr(tokens, start + 1, cursor - start - 1);
 
-            if (tokens[start + len - 1].kind != Token.Kind.CPAR_CURLY)
-                throw new Syn.Error("Open block never closed", tokens[blockStart].position);
-
-            int blockLen = start + len - blockStart - 2;
-            StmtList statements = parseStmtList(tokens, blockStart + 1, blockLen);
+            int blockStart = cursor + 1;
+            int blockLen = start + len - blockStart - 1;
+            StmtList statements = parseStmtList(tokens, blockStart, blockLen);
             Block body = new Block(statements);
             return new While(cond, body);
         }
@@ -129,9 +121,63 @@ public static class Syn {
             return new Block(statements);
         }
 
+        // IfElse
+        if (len > 0 && firstToken.kind == Token.Kind.IF)
+            return parseIfElse(tokens, start, len);
+
+
         // ExprStmt
         Expr exprStmt = parseExpr(tokens, start, len);
         return new ExprStmt(exprStmt);
+    }
+
+    private static IfElse parseIfElse(Token[] tokens, int start, int len) {
+        int blockOpar = next(Token.Kind.OPAR_CURLY, tokens, start, len);
+        if (blockOpar >= start + len)
+            throw new Syn.Error("Missing block after condition", tokens[blockOpar - 1].position);
+
+        Expr cond = parseExpr(tokens, start + 1, blockOpar - start - 1);
+
+        int blockCpar = nextMatching(
+            Token.Kind.OPAR_CURLY, Token.Kind.CPAR_CURLY,
+            tokens, blockOpar, start + len - blockOpar
+        );
+        int stmtListStart = blockOpar + 1;
+        int stmtListLen = blockCpar - stmtListStart;
+        Block ifTrue = new Block(
+            parseStmtList(tokens, stmtListStart, stmtListLen)
+        );
+        if (blockCpar + 1 == start + len)
+            return new IfElse(cond, ifTrue, null);
+
+        if (tokens[blockCpar + 1].kind != Token.Kind.ELSE)
+            throw new Syn.Error("expected else or ;", tokens[blockCpar + 1].position);
+        if (blockCpar + 2 >= start + len)
+            throw new Syn.Error("else is incomplete", tokens[blockCpar + 1].position);
+        if (tokens[blockCpar + 2].kind != Token.Kind.OPAR_CURLY
+            && tokens[blockCpar + 2].kind != Token.Kind.IF
+        ) throw new Syn.Error("expected if or {", tokens[blockCpar + 2].position);
+
+        if (tokens[blockCpar + 2].kind == Token.Kind.OPAR_CURLY) {
+            blockOpar = blockCpar + 2;
+            blockCpar = nextMatching(
+                Token.Kind.OPAR_CURLY, Token.Kind.CPAR_CURLY,
+                tokens, blockOpar, start + len - blockOpar
+            );
+            stmtListStart = blockOpar + 1;
+            stmtListLen = blockCpar - stmtListStart;
+            Block ifFalse = new Block(
+                parseStmtList(tokens, stmtListStart, stmtListLen)
+            );
+            return new IfElse(cond, ifTrue, ifFalse);
+        }
+        else if (tokens[blockCpar + 2].kind == Token.Kind.IF) {
+            int elseIfStart = blockCpar + 2;
+            int elseIfLen = start + len - elseIfStart;
+            IfElse elseIf = parseIfElse(tokens, elseIfStart, elseIfLen);
+            return new IfElse(cond, ifTrue, elseIf);
+        }
+        throw new Syn.Error("unexpected token", tokens[blockCpar + 2].position);
     }
 
     private static Expr parseExpr(Token[] tokens, int start, int len) {
@@ -290,6 +336,7 @@ public static class Syn {
             case Token.Kind.LOG:
             case Token.Kind.SIN:
             case Token.Kind.NEG:
+            case Token.Kind.LEN:
             return true;
         }
         return false;
@@ -322,6 +369,34 @@ public static class Syn {
     private static bool isTernOpSecond(Token t) {
         return t.kind == Token.Kind.COLON;
     }
+
+    private static int next(Token.Kind kind, Token[] tokens, int start, int len) {
+        int cursor = start;
+        while (
+            cursor < start + len
+            && tokens[cursor].kind != kind
+        ) cursor++;
+        return cursor;
+    }
+
+    private static int nextMatching(Token.Kind begin, Token.Kind end, Token[] tokens, int start, int len) {
+        int parLevel = 0;
+        int cursor = start;
+        while (cursor < start + len) {
+            if (tokens[cursor].kind == begin) parLevel++;
+            else if (tokens[cursor].kind == end) parLevel--;
+
+            if (parLevel == 0 && tokens[cursor].kind == end) break;
+            else if (parLevel < 0) 
+                throw new Syn.Error("never opened", tokens[cursor].position);
+            cursor++;
+        }
+        if (parLevel > 0)
+            throw new Syn.Error("never closed", tokens[start].position);
+
+        return cursor;
+    }
+
 
     public class Error : Exception {
         public readonly string message;

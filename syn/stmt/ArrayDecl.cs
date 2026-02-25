@@ -9,6 +9,7 @@ public class ArrayDecl : Stmt {
 
     public override Value exec(Scope _) {
         Value result = Value.array(capacity);
+        if (_.isSet(id.name)) throw new Exception("Can't redeclare an array");
         _.set(id.name, result);
         return result;
     }

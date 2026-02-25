@@ -8,25 +8,25 @@ public readonly struct Value {
 
     public readonly Kind kind;
     public readonly double num;
-    public readonly double[] arr;
+    public readonly double[]? arr;
     public readonly int capacity;
 
-    private Value(Kind kind, double num, double[] arr) {
+    private Value(Kind kind, double num) {
         this.kind = kind;
         this.num = num;
-        this.arr = arr;
+        this.arr = null;
         this.capacity = 0;
     }
 
     private Value(Kind kind, double[] arr, int capacity) {
         this.kind = kind;
-        this.num = num;
+        this.num = 0;
         this.arr = arr;
         this.capacity = capacity;
     }
 
     public static Value number(double num) {
-        return new Value(Kind.Number, num, null);
+        return new Value(Kind.Number, num);
     }
 
     public static Value array(int capacity) {
