@@ -51,7 +51,7 @@ public static class Syn {
 
         // Assignment
         if (len > 2 && firstToken.kind == Token.Kind.ID
-        &&  tokens[start + 1].kind == Token.Kind.ASSIGN) {
+        &&  tokens[start + 1].kind == Token.Kind.EQUALS) {
             Identifier id = new Identifier(firstToken.raw);
             Expr assignee = parseExpr(tokens, start + 2, len - 2);
             return new Assignment(id, assignee);
@@ -61,7 +61,7 @@ public static class Syn {
         if (len > 1 && firstToken.kind == Token.Kind.OPAR_SQUARE
         ) {
             int assignIndex = start;
-            while (assignIndex < start+len && tokens[assignIndex].kind != Token.Kind.ASSIGN) assignIndex++;
+            while (assignIndex < start+len && tokens[assignIndex].kind != Token.Kind.EQUALS) assignIndex++;
             if (assignIndex < start + len) {
                 if (assignIndex == start+len-1) throw new Syn.Error("Missing assignee", tokens[len-1].position);
 
