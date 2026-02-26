@@ -1,0 +1,11 @@
+a[2]; [0]a = 5; [1]a = 10;
+i = 0;
+avg = 0;
+
+while i < len a {
+    avg = avg + [i]a;
+    i = i + 1;
+};
+
+avg = avg / len a;
+print avg;
