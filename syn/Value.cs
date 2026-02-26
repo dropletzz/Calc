@@ -8,13 +8,13 @@ public readonly struct Value {
 
     public readonly Kind kind;
     public readonly double num;
-    public readonly double[]? arr;
+    public readonly double[] arr;
     public readonly int capacity;
 
     private Value(Kind kind, double num) {
         this.kind = kind;
         this.num = num;
-        this.arr = null;
+        this.arr = [];
         this.capacity = 0;
     }
 
