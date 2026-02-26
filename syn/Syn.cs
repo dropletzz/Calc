@@ -383,6 +383,8 @@ public static class Syn {
             case Token.Kind.CPAR_ANG:
             case Token.Kind.AND:
             case Token.Kind.OR:
+            case Token.Kind.PERCENT:
+            case Token.Kind.DOUBLE_EQUALS:
             return true;
         }
         return false;

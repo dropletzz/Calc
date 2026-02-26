@@ -2,7 +2,7 @@
 public class BinOp : Expr {
 
     public enum Kind {
-        SUM, SUB, MUL, DIV, POW, GT, LT, AND, OR
+        SUM, SUB, MUL, DIV, POW, GT, LT, AND, OR, EQ, MOD
     }
 
     private Kind kind;
@@ -29,6 +29,12 @@ public class BinOp : Expr {
                 case Kind.GT: return Value.number((lval.num > rval.num) ? 1 : 0);
                 case Kind.AND: return Value.number((lval.num != 0 && rval.num != 0) ? 1 : 0);
                 case Kind.OR: return Value.number((lval.num != 0 || rval.num != 0) ? 1 : 0);
+                case Kind.EQ: return Value.number((lval.num - rval.num == 0) ? 1 : 0);
+                case Kind.MOD: {
+                    int l = (int)lval.num;
+                    int r = (int)rval.num;
+                    return Value.number(((l % r) + r) % r);
+                }
             }
         }
         throw new Exception("BinOp.eval unimplemented for "+lval.kind+" "+kind+" "+rval.kind);
@@ -45,6 +51,8 @@ public class BinOp : Expr {
             case Token.Kind.CPAR_ANG:                        return Kind.GT;
             case Token.Kind.AND:                             return Kind.AND;
             case Token.Kind.OR:                              return Kind.OR;
+            case Token.Kind.DOUBLE_EQUALS:                   return Kind.EQ;
+            case Token.Kind.PERCENT:                         return Kind.MOD;
         }
         throw new Syn.Error("BinOp.kindFromToken unimplemented for '" + t.kind + "'", t.position);
     }
@@ -52,8 +60,9 @@ public class BinOp : Expr {
     public static int priorityFor(Token t) {
         Kind kind = kindFromToken(t);
         switch (kind) {
-            case Kind.AND: case Kind.OR: return -2; // low priority
-            case Kind.LT: case Kind.GT: return -1;
+            case Kind.AND: case Kind.OR: return -3; // low priority
+            case Kind.LT: case Kind.GT: case Kind.EQ: return -2;
+            case Kind.MOD: return -1;
             case Kind.SUM: case Kind.SUB: return 0;
             case Kind.MUL: return 1;
             case Kind.DIV: return 2;

@@ -124,51 +124,49 @@ mptr = 0;
 while iptr < len instructions {
     ins = [iptr]instructions;
     
-    if ins < PLUS+0.5 {
-        [mptr]memory = [mptr]memory + 1;
-        if [mptr]memory > 255 { [mptr]memory = 0 };
+    if ins == PLUS {
+        [mptr]memory = ([mptr]memory + 1) % 256
     }
-    else if ins < COMMA+0.5 {
-        getc [mptr]memory;
+    else if ins == COMMA {
+        getc [mptr]memory
     }
-    else if ins < MINUS+0.5 {
-        [mptr]memory = [mptr]memory - 1;
-        if [mptr]memory < 0 { [mptr]memory = 255 };
+    else if ins == MINUS {
+        [mptr]memory = ([mptr]memory - 1) % 256
     }
-    else if ins < DOT+0.5 {
+    else if ins == DOT {
         putc [mptr]memory
     }
-    else if ins < LEFT+0.5 {
+    else if ins == LEFT {
         mptr = mptr - 1
     }
-    else if ins < RIGHT+0.5 {
+    else if ins == RIGHT {
         mptr = mptr + 1
     }
-    else if ins < OPAR+0.5 {
+    else if ins == OPAR {
         if not [mptr]memory {
             depth = 0;
             done = 0;
             while not done {
                 ins = [iptr]instructions;
-                
-                if not(ins - OPAR) { depth = depth + 1 };
-                if not(ins - CPAR) { depth = depth - 1 };
-                if not depth and not(ins - CPAR) { done = 1 };
+
+                if ins == OPAR { depth = depth + 1 };
+                if ins == CPAR { depth = depth - 1 };
+                if depth == 0 and ins == CPAR { done = 1 };
 
                 if not done { iptr = iptr + 1 }
             }
         }
     }
-    else if ins < CPAR+0.5 {
+    else if ins == CPAR {
         if [mptr]memory {
             depth = 0;
             done = 0;
             while not done {
                 ins = [iptr]instructions;
 
-                if not(ins - OPAR) { depth = depth - 1 };
-                if not(ins - CPAR) { depth = depth + 1 };
-                if not depth and not(ins - OPAR) { done = 1 };
+                if ins == OPAR { depth = depth - 1 };
+                if ins == CPAR { depth = depth + 1 };
+                if depth == 0 and ins == OPAR { done = 1 };
 
                 if not done { iptr = iptr - 1 }
             }

@@ -2,8 +2,8 @@
 public static class Lex {
 
     public static readonly string[] SYMBOLS = {
-        "+", "plus", "-", "minus", "*", "times", "/", "by", "?", ":=", ":", ";",
-        "^", "log", "sin", "neg", "not", "(", ")", "=", "<", ">", "and", "or", "print",
+        "+", "plus", "-", "minus", "*", "times", "/", "by", "?", "%", ":=", ":", ";",
+        "^", "log", "sin", "neg", "not", "(", ")", "==", "=", "<", ">", "and", "or", "print",
         "while", "{", "}", "[", "]", "if", "else", "len", "getc", "putc"
     };
 
@@ -104,6 +104,8 @@ public static class Lex {
             case "(":     kind = Token.Kind.OPAR; break;
             case ")":     kind = Token.Kind.CPAR; break;
             case "=":     kind = Token.Kind.EQUALS; break;
+            case "==":    kind = Token.Kind.DOUBLE_EQUALS; break;
+            case "%":     kind = Token.Kind.PERCENT; break;
             case "<":     kind = Token.Kind.OPAR_ANG; break;
             case ">":     kind = Token.Kind.CPAR_ANG; break;
             case "?":     kind = Token.Kind.QUESTION_MARK; break;
