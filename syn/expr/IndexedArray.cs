@@ -1,4 +1,4 @@
-public class IndexedArray : Expr {
+public class IndexedArray : Expr, Assignable {
     
     public readonly Expr indExpr;
     public readonly Identifier id;

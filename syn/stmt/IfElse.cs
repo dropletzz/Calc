@@ -22,7 +22,7 @@ public class IfElse : Stmt {
 
     public override string ToString() {
         string s = "IF "+cond+" DO "+ifTrue;
-        if (ifFalse != null) s += "ELSE "+ifFalse;
+        if (ifFalse != null) s += " ELSE "+ifFalse;
         return s;
     }
 }

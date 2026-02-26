@@ -1,9 +1,8 @@
 ﻿public static class Program {
     public static void Main(string[] args) {
-        bool testsCommand = args.Length == 1 && args[0].Equals("tests");
-
-        if (testsCommand) runTests();
-        else runRepl();
+        if (args.Length == 0) runRepl();
+        else if (args[0].Equals("tests")) runTests();
+        else runFile(args[0]);
     }
 
     public static void runRepl() {
@@ -14,7 +13,7 @@
         string? input = Console.ReadLine();
         Interpreter t = new Interpreter();
         while (input != null && !input.Equals("bye")) {
-            run(t, input);
+            if (!String.IsNullOrEmpty(input)) run(t, input);
             input = Console.ReadLine();
         }
         Console.WriteLine("bye!");
@@ -32,10 +31,16 @@
         }
     }
 
-    private static void run(Interpreter t, string code) {
+    public static void runFile(string fileName) {
+        string code = File.ReadAllText(fileName);
+        Interpreter t = new Interpreter();
+        run(t, code, false);
+    }
+
+    private static void run(Interpreter t, string code, bool showResult) {
         try {
             Value result = t.run(code);
-            Console.WriteLine("= " + result);
+            if (showResult) Console.WriteLine("= " + result);
         } catch (Lex.Error e) {
             for (int i = 0; i < e.position; i++) Console.Write(" ");
             Console.WriteLine("^ [Lex] " + e.message);
@@ -45,6 +50,10 @@
         } catch (Exception e) {
             Console.WriteLine("[Err] " + e.Message);
         }
+    }
+
+    private static void run(Interpreter t, string code) {
+        run(t, code, true);
     }
 
     private static string[] tests = {

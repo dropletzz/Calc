@@ -49,6 +49,23 @@ public static class Syn {
     private static Stmt parseStmt(Token[] tokens, int start, int len) {
         Token firstToken = tokens[start];
 
+        if (firstToken.kind == Token.Kind.PUTC) {
+            Expr expr = parseExpr(tokens, start + 1, len - 1);
+            return new Putc(expr);
+        }
+
+        if (firstToken.kind == Token.Kind.GETC) {
+            if (len < 2) throw new Syn.Error("missing argument", tokens[start].position);
+
+            if (tokens[start + 1].kind == Token.Kind.ID) {
+                string name = tokens[start + 1].raw;
+                return new Getc(new Identifier(name));
+            }
+
+            IndexedArray targetArr = parseIndexedArray(tokens, start + 1, len - 1);
+            return new Getc(targetArr);
+        }
+
         // Assignment
         if (len > 2 && firstToken.kind == Token.Kind.ID
         &&  tokens[start + 1].kind == Token.Kind.EQUALS) {
@@ -184,10 +201,6 @@ public static class Syn {
         Token firstToken = tokens[start];
         Token lastToken = tokens[start + len - 1];
 
-        if (firstToken.kind == Token.Kind.OPAR_SQUARE) {
-            return parseIndexedArray(tokens, start, len);
-        }
-
         // find candidate UnOp, BinOp and TernOp to parse
         // (based on parentheses and BinOp priority)
         int ternOpFirstIndex = -1;
@@ -201,6 +214,14 @@ public static class Syn {
         int parLevel = 0;
         for (int i = start; i < start+len; i++) {
             Token t = tokens[i];
+
+            if (t.kind == Token.Kind.OPAR_SQUARE) {
+                i = nextMatching(
+                    Token.Kind.OPAR_SQUARE, Token.Kind.CPAR_SQUARE,
+                    tokens, start, len
+                );
+                i++;
+            }
 
             if (t.kind == Token.Kind.OPAR && parLevel == 0) firstOparIndex = i;
 
@@ -250,6 +271,10 @@ public static class Syn {
 
         if (unOpIndex >= 0) {
             return parseUnOp(unOpIndex, tokens, start, len);
+        }
+
+        if (firstToken.kind == Token.Kind.OPAR_SQUARE) {
+            return parseIndexedArray(tokens, start, len);
         }
 
         // parentheses removal
@@ -337,6 +362,7 @@ public static class Syn {
             case Token.Kind.SIN:
             case Token.Kind.NEG:
             case Token.Kind.LEN:
+            case Token.Kind.NOT:
             return true;
         }
         return false;

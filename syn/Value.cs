@@ -43,7 +43,7 @@ public readonly struct Value {
         if (arr != null && kind == Kind.Array) {
             int i = 0;
             string result = "[ ";
-            while (i++ < capacity-1) result += arr[i] + ", ";
+            while (i < capacity-1) result += arr[i++] + ", ";
             result += arr[i] + " ]"; 
             return result;
         }

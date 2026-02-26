@@ -3,11 +3,11 @@ public static class Lex {
 
     public static readonly string[] SYMBOLS = {
         "+", "plus", "-", "minus", "*", "times", "/", "by", "?", ":=", ":", ";",
-        "^", "log", "sin", "neg", "(", ")", "=", "<", ">", "and", "or", "print",
-        "while", "{", "}", "[", "]", "if", "else", "len"
+        "^", "log", "sin", "neg", "not", "(", ")", "=", "<", ">", "and", "or", "print",
+        "while", "{", "}", "[", "]", "if", "else", "len", "getc", "putc"
     };
 
-    public static readonly int MAX_TOKENS_LENGTH = 1024;
+    public static readonly int MAX_TOKENS_LENGTH = 1024 * 1024;
 
     public static Token[] tokenize(string s, out int tokensLength) {
         int position = 0;
@@ -112,8 +112,7 @@ public static class Lex {
             case "and":   kind = Token.Kind.AND; break;
             case "or":    kind = Token.Kind.OR; break;
             case "neg":   kind = Token.Kind.NEG; break;
-            case "print":    kind = Token.Kind.PRINT; break;
-            case "while":    kind = Token.Kind.WHILE; break;
+            case "not":   kind = Token.Kind.NOT; break;
             case "{":    kind = Token.Kind.OPAR_CURLY; break;
             case "}":    kind = Token.Kind.CPAR_CURLY; break;
             case "[":    kind = Token.Kind.OPAR_SQUARE; break;
@@ -121,6 +120,10 @@ public static class Lex {
             case "if":    kind = Token.Kind.IF; break;
             case "else":    kind = Token.Kind.ELSE; break;
             case "len":    kind = Token.Kind.LEN; break;
+            case "print":    kind = Token.Kind.PRINT; break;
+            case "while":    kind = Token.Kind.WHILE; break;
+            case "getc":    kind = Token.Kind.GETC; break;
+            case "putc":    kind = Token.Kind.PUTC; break;
             default: throw new Lex.Error("parseSymbol undefined for '" + rawToken + "'", position);
         }
 
@@ -138,7 +141,7 @@ public static class Lex {
 
     public static bool isWhitespace(char c) {
         // only spaces and tabs are considered whitespace
-        return c == ' ' || c == '\t';
+        return c == ' ' || c == '\t' || c == '\n';
     }
 
     public static bool isAlphanum(char c) {

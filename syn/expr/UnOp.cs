@@ -2,7 +2,7 @@
 public class UnOp : Expr {
     
     public enum Kind {
-        LOG, SIN, NEG, LEN
+        LOG, SIN, NEG, LEN, NOT
     }
 
     private Kind kind;
@@ -20,6 +20,7 @@ public class UnOp : Expr {
                 case Kind.LOG: return Value.number(Math.Log(val.num));
                 case Kind.SIN: return Value.number(Math.Sin(val.num));
                 case Kind.NEG: return Value.number(-val.num);
+                case Kind.NOT: return Value.number(val.num == 0 ? 1 : 0);
             }
         }
         else if (val.kind == Value.Kind.Array) {
@@ -36,6 +37,7 @@ public class UnOp : Expr {
             case Token.Kind.SIN: return Kind.SIN;
             case Token.Kind.NEG: return Kind.NEG;
             case Token.Kind.LEN: return Kind.LEN;
+            case Token.Kind.NOT: return Kind.NOT;
         }
         throw new Syn.Error("UnOp.kindFromToken unimplemented for '" + t.kind + "'", t.position);
     }
