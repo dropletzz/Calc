@@ -57,7 +57,7 @@
     }
 
     private static string[] tests = {
-        // Espressions
+        // Expressions
         "2 + 2",
         "12 / 37 + 2 * 5",
         "10 - 7 - 3",
@@ -93,17 +93,17 @@
         "if 1<2 {23}",
         "if 1>2 {23} else {333}",
         "x=23; if x>24 {23} else if x > 12 {333}",
-        "x=23; if x>24 {23} else if x > 23.5 {-12} else if x < 0 {333}",
+        "x=23; if x>24 {23} else if x > 23.5 {neg12} else if x < 0 {333}",
 
+        "{ in = 2; in }",
         "x = 37; while x > 3 { print x; x = x - 10 }",
         "{ in = 2 }; 3",
         "outer = 1; { inner = 12; outer = outer + 1; print inner }; print outer",
-
         "x[6]; i = 0; while (i < 6) { [i]x = i*i; i = i+1 }; i = 0; while (i < 6) { print [i]x; i = i+1 }",
+
         "x[12]; [4]x=37",
         "x[12]; [4]x=37; [4]x",
         "x[12]; [4]x=37;[2+2]x",
-        "x[12]; [4]x=37;[2*12]x",
 
         // Error messages
         "3/ ",
@@ -114,5 +114,6 @@
         "2 * ((13 - 12) * log 2",
         "(13 - 12)) * log 2",
         "x",
+        "x[12]; [4]x=37;[2*12]x",
     };
 }
