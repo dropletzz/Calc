@@ -54,7 +54,7 @@ public class BinOp : Expr {
             case Token.Kind.DOUBLE_EQUALS:                   return Kind.EQ;
             case Token.Kind.PERCENT:                         return Kind.MOD;
         }
-        throw new Syn.Error("BinOp.kindFromToken unimplemented for '" + t.kind + "'", t.position);
+        throw new Syn.Error("BinOp.kindFromToken unimplemented for '" + t.kind + "'", t.loc);
     }
 
     public static int priorityFor(Token t) {
@@ -68,7 +68,7 @@ public class BinOp : Expr {
             case Kind.DIV: return 2;
             case Kind.POW: return 3;
         }
-        throw new Syn.Error("BinOp.priorityFor unimplemented for '" + kind + "'", t.position);
+        throw new Syn.Error("BinOp.priorityFor unimplemented for '" + kind + "'", t.loc);
     }
 
     public override string ToString() {

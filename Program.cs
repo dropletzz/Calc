@@ -20,8 +20,11 @@
     }
 
     public static void runTests() {
-        // string[] tests = {
-        // };
+        string[] tests = {
+            // "if 1>2 {23} else {333}",
+            // "x=23; if x>24 {23} else if x > 12 {333}",
+            // "x=23; if x>24 {23} else if x > 23.5 {neg12} else if x < 0 {333}",
+        };
         Console.WriteLine("---------------------");
         foreach (string test in tests) {
             Interpreter t = new Interpreter(true);
@@ -38,14 +41,17 @@
     }
 
     private static void run(Interpreter t, string code, bool showResult) {
+        string[] lines = code.Split('\n', StringSplitOptions.None);
         try {
             Value result = t.run(code);
             if (showResult) Console.WriteLine("= " + result);
         } catch (Lex.Error e) {
-            for (int i = 0; i < e.position; i++) Console.Write(" ");
+            Console.WriteLine(lines[e.loc.line]);
+            for (int i = 0; i < e.loc.position; i++) Console.Write(" ");
             Console.WriteLine("^ [Lex] " + e.message);
         } catch (Syn.Error e) {
-            for (int i = 0; i < e.position; i++) Console.Write(" ");
+            Console.WriteLine(lines[e.loc.line]);
+            for (int i = 0; i < e.loc.position; i++) Console.Write(" ");
             Console.WriteLine("^ [Syn] " + e.message);
         } catch (Exception e) {
             Console.WriteLine("[Err] " + e.Message);

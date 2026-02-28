@@ -2,7 +2,7 @@
 public static class Syn {
 
     public static Stmt parse(Token[] tokens, int len) {
-        if (len <= 0) throw new Syn.Error("Can't parse empty token list", 0);
+        if (len <= 0) throw new Syn.Error("Can't parse empty token list", new Location(0, 0));
         return parseStmtList(tokens, 0, len);
     }
 
@@ -55,7 +55,7 @@ public static class Syn {
         }
 
         if (firstToken.kind == Token.Kind.GETC) {
-            if (len < 2) throw new Syn.Error("missing argument", tokens[start].position);
+            if (len < 2) throw new Syn.Error("missing argument", tokens[start].loc);
 
             if (tokens[start + 1].kind == Token.Kind.ID) {
                 string name = tokens[start + 1].raw;
@@ -80,7 +80,7 @@ public static class Syn {
             int assignIndex = start;
             while (assignIndex < start+len && tokens[assignIndex].kind != Token.Kind.EQUALS) assignIndex++;
             if (assignIndex < start + len) {
-                if (assignIndex == start+len-1) throw new Syn.Error("Missing assignee", tokens[len-1].position);
+                if (assignIndex == start+len-1) throw new Syn.Error("Missing assignee", tokens[len-1].loc);
 
                 int idxArrayLen = assignIndex - start;
                 IndexedArray idx = parseIndexedArray(tokens, start, idxArrayLen);
@@ -116,9 +116,9 @@ public static class Syn {
             int cursor = next(Token.Kind.OPAR_CURLY, tokens, start, len);
 
             if (cursor >= start + len) 
-                throw new Syn.Error("Missing block after condition", tokens[cursor - 1].position);
+                throw new Syn.Error("Missing block after condition", tokens[cursor - 1].loc);
             if (tokens[start + len - 1].kind != Token.Kind.CPAR_CURLY)
-                throw new Syn.Error("Open block never closed", tokens[cursor].position);
+                throw new Syn.Error("Open block never closed", tokens[cursor].loc);
 
             Expr cond = parseExpr(tokens, start + 1, cursor - start - 1);
 
@@ -151,7 +151,7 @@ public static class Syn {
     private static IfElse parseIfElse(Token[] tokens, int start, int len) {
         int blockOpar = next(Token.Kind.OPAR_CURLY, tokens, start, len);
         if (blockOpar >= start + len)
-            throw new Syn.Error("Missing block after condition", tokens[blockOpar - 1].position);
+            throw new Syn.Error("Missing block after condition", tokens[blockOpar - 1].loc);
 
         Expr cond = parseExpr(tokens, start + 1, blockOpar - start - 1);
 
@@ -168,12 +168,12 @@ public static class Syn {
             return new IfElse(cond, ifTrue, null);
 
         if (tokens[blockCpar + 1].kind != Token.Kind.ELSE)
-            throw new Syn.Error("expected else or ;", tokens[blockCpar + 1].position);
+            throw new Syn.Error("expected else or ;", tokens[blockCpar + 1].loc);
         if (blockCpar + 2 >= start + len)
-            throw new Syn.Error("else is incomplete", tokens[blockCpar + 1].position);
+            throw new Syn.Error("else is incomplete", tokens[blockCpar + 1].loc);
         if (tokens[blockCpar + 2].kind != Token.Kind.OPAR_CURLY
             && tokens[blockCpar + 2].kind != Token.Kind.IF
-        ) throw new Syn.Error("expected if or {", tokens[blockCpar + 2].position);
+        ) throw new Syn.Error("expected if or {", tokens[blockCpar + 2].loc);
 
         if (tokens[blockCpar + 2].kind == Token.Kind.OPAR_CURLY) {
             blockOpar = blockCpar + 2;
@@ -194,7 +194,7 @@ public static class Syn {
             IfElse elseIf = parseIfElse(tokens, elseIfStart, elseIfLen);
             return new IfElse(cond, ifTrue, elseIf);
         }
-        throw new Syn.Error("unexpected token", tokens[blockCpar + 2].position);
+        throw new Syn.Error("unexpected token", tokens[blockCpar + 2].loc);
     }
 
     private static Expr parseExpr(Token[] tokens, int start, int len) {
@@ -251,14 +251,10 @@ public static class Syn {
                 unOpIndex = i;
             }
 
-            if (parLevel < 0) throw new Syn.Error(
-                "Parenthesis never opened", t.position
-            );
+            if (parLevel < 0) throw new Syn.Error("Parenthesis never opened", t.loc);
         }
 
-        if (parLevel > 0) throw new Syn.Error(
-            "Parenthesis never closed", tokens[firstOparIndex].position
-        );
+        if (parLevel > 0) throw new Syn.Error("Parenthesis never closed", tokens[firstOparIndex].loc);
 
 
         if (ternOpFirstIndex >= 0 && ternOpSecondIndex >= 0) {
@@ -289,15 +285,15 @@ public static class Syn {
             else if (firstToken.kind == Token.Kind.ID)
                 return new Identifier(firstToken.raw);
             else
-                throw new Syn.Error("Expected a literal", firstToken.position);
+                throw new Syn.Error("Expected a literal", firstToken.loc);
         }
 
-        throw new Syn.Error("Could not parse", firstToken.position);
+        throw new Syn.Error("Could not parse", firstToken.loc);
     }
 
     private static IndexedArray parseIndexedArray(Token[] tokens, int start, int len) {
         if (tokens[start].kind != Token.Kind.OPAR_SQUARE)
-            throw new Syn.Error("IndexedArray must start with '['", tokens[start].position);
+            throw new Syn.Error("IndexedArray must start with '['", tokens[start].loc);
 
         int cparIndex = start;
         while (cparIndex < start + len
@@ -305,12 +301,12 @@ public static class Syn {
         ) cparIndex++;
 
         if (cparIndex >= start + len)
-            throw new Syn.Error("missing ']'", tokens[start + len - 1].position);
+            throw new Syn.Error("missing ']'", tokens[start + len - 1].loc);
         if (cparIndex + 1 < start + len
             && tokens[cparIndex + 1].kind != Token.Kind.ID
-        ) throw new Syn.Error("Should be an identifier", tokens[cparIndex + 1].position);
+        ) throw new Syn.Error("Should be an identifier", tokens[cparIndex + 1].loc);
         if (cparIndex + 2 < start + len)
-            throw new Syn.Error("Unexpected token", tokens[cparIndex + 2].position);
+            throw new Syn.Error("Unexpected token", tokens[cparIndex + 2].loc);
 
         int indExprLen = cparIndex - start - 1;
         Expr indExpr = parseExpr(tokens, start + 1, indExprLen);
@@ -321,12 +317,12 @@ public static class Syn {
     private static UnOp parseUnOp(int unOpIndex, Token[] tokens, int start, int len) {
         Token unOpToken = tokens[unOpIndex];
         if (len < 2)
-            throw new Syn.Error("Unary operator misses its agument", unOpToken.position);
+            throw new Syn.Error("Unary operator misses its agument", unOpToken.loc);
         if (unOpIndex != start)
             if (tokens[start].kind == Token.Kind.NUMBER)
-                throw new Syn.Error("Unexpected token", tokens[start+1].position);
+                throw new Syn.Error("Unexpected token", tokens[start+1].loc);
             else
-                throw new Syn.Error("Unexpected token", tokens[start].position);
+                throw new Syn.Error("Unexpected token", tokens[start].loc);
 
         Expr arg = parseExpr(tokens, start + 1, len - 1);
         return new UnOp(UnOp.kindFromToken(unOpToken), arg);
@@ -336,7 +332,7 @@ public static class Syn {
         Token binOpToken = tokens[binOpIndex];
         if (binOpIndex == start || binOpIndex == start+len-1)
             throw new Syn.Error(
-                "Binary operator misses an argument", binOpToken.position
+                "Binary operator misses an argument", binOpToken.loc
             );
 
         int lhsLen = binOpIndex - start;
@@ -416,11 +412,11 @@ public static class Syn {
 
             if (parLevel == 0 && tokens[cursor].kind == end) break;
             else if (parLevel < 0) 
-                throw new Syn.Error("never opened", tokens[cursor].position);
+                throw new Syn.Error("never opened", tokens[cursor].loc);
             cursor++;
         }
         if (parLevel > 0)
-            throw new Syn.Error("never closed", tokens[start].position);
+            throw new Syn.Error("never closed", tokens[start].loc);
 
         return cursor;
     }
@@ -428,11 +424,11 @@ public static class Syn {
 
     public class Error : Exception {
         public readonly string message;
-        public readonly int position;
+        public readonly Location loc;
 
-        public Error(string message, int position) {
+        public Error(string message, Location loc) {
             this.message = message;
-            this.position = position;
+            this.loc = loc;
         }
     }
 }

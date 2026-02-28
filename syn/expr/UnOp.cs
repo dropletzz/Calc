@@ -39,7 +39,7 @@ public class UnOp : Expr {
             case Token.Kind.LEN: return Kind.LEN;
             case Token.Kind.NOT: return Kind.NOT;
         }
-        throw new Syn.Error("UnOp.kindFromToken unimplemented for '" + t.kind + "'", t.position);
+        throw new Syn.Error("UnOp.kindFromToken unimplemented for '" + t.kind + "'", t.loc);
     }
 
     public override string ToString() {

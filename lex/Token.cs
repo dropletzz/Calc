@@ -9,21 +9,27 @@ public class Token {
     }
 
     public readonly Kind kind;
-    public readonly int position; // where the token begins in the input string
+    public readonly Location loc; // location of the token in the source code
     public readonly string raw;
     public readonly double value; // value is only assigned for Kind.NUMBER
 
-    public Token(Kind kind, int position, string raw) {
+    private Token(Kind kind, string raw, double value, Location loc) {
         this.kind = kind;
-        this.position = position;
-        this.raw = raw;
-    }
-
-    public Token(int position, string raw, double value) {
-        this.kind = Kind.NUMBER;
-        this.position = position;
+        this.loc = loc;
         this.raw = raw;
         this.value = value;
+    }
+
+    public static Token symbol(Token.Kind kind, string raw, Location loc) {
+        return new Token(kind, raw, 0, loc);
+    }
+
+    public static Token identifier(string raw, Location loc) {
+        return new Token(Token.Kind.ID, raw, 0, loc);
+    }
+
+    public static Token number(string raw, double value, Location loc) {
+        return new Token(Token.Kind.NUMBER, raw, value, loc);
     }
 
     public override string ToString() {

@@ -35,7 +35,7 @@ public class TernOp : Expr {
     public static Kind kindFromTokens(Token a, Token b) {
         return (a.kind, b.kind) switch {
             (Token.Kind.QUESTION_MARK, Token.Kind.COLON) => Kind.CONDITIONAL,
-            _ => throw new Syn.Error("TernOp.kindFromToken unimplemented for '" + a.kind + "' and '" + b.kind + "'", a.position)
+            _ => throw new Syn.Error("TernOp.kindFromToken unimplemented for '" + a.kind + "' and '" + b.kind + "'", a.loc)
         };
     }
 

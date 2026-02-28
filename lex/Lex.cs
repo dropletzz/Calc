@@ -9,17 +9,24 @@ public static class Lex {
 
     public static readonly int MAX_TOKENS_LENGTH = 1024 * 1024;
 
+    private static int position = 0;
+    private static int line = 0;
+    private static int lastLinePosition = 0;
+
     public static Token[] tokenize(string s, out int tokensLength) {
-        int position = 0;
+        position = 0;
+        line = 0;
+        lastLinePosition = 0;
+
         Token[] tokens = new Token[MAX_TOKENS_LENGTH];
         tokensLength = 0;
 
-        position = chompWhitespace(s, position);
+        chompWhitespace(s);
 
         while (position < s.Length) {
             bool found = false;
             if (tokensLength >= MAX_TOKENS_LENGTH)
-                throw new Lex.Error("Too many tokens, max is " + MAX_TOKENS_LENGTH, position);
+                throw new Lex.Error("Too many tokens, max is " + MAX_TOKENS_LENGTH, new Location(line, linePosition()));
 
             // look for a symbol
             foreach (string sym in SYMBOLS) {
@@ -33,7 +40,7 @@ public static class Lex {
                 }
                 if (found) {
                     string rawToken = s.Substring(position, sym.Length);
-                    tokens[tokensLength] = parseSymbol(rawToken, position);
+                    tokens[tokensLength] = parseSymbol(rawToken, new Location(line, linePosition()));
                     tokensLength++;
                     position += sym.Length;
                     break;
@@ -43,13 +50,15 @@ public static class Lex {
             // look for a number
             if (!found) {
                 int startPosition = position;
-                position = chompDigits(s, position);
-                position = chompChar('.', s, position);
-                position = chompDigits(s, position);
+                int startLinePosition = linePosition();
+                int startLine = line;
+                chompDigits(s);
+                chompChar('.', s);
+                chompDigits(s);
 
                 if (position > startPosition) {
                     string rawToken = s.Substring(startPosition, position - startPosition);
-                    tokens[tokensLength] = parseNumber(rawToken, startPosition);
+                    tokens[tokensLength] = parseNumber(rawToken, new Location(startLine, startLinePosition));
                     tokensLength++;
                     found = true;
                 }
@@ -58,36 +67,38 @@ public static class Lex {
             // look for an identifier
             if (!found) {
                 int startPosition = position;
-                position = chompIdentifier(s, position);
+                int startLinePosition = linePosition();
+                int startLine = line;
+                chompIdentifier(s);
 
                 if (position > startPosition) {
                     string rawToken = s.Substring(startPosition, position - startPosition);
-                    tokens[tokensLength] = parseIdentifier(rawToken, startPosition);
+                    tokens[tokensLength] = parseIdentifier(rawToken, new Location(startLine, startLinePosition));
                     tokensLength++;
                     found = true;
                 }
             }
 
-            if (!found) throw new Error("Couldn't parse token", position);
+            if (!found) throw new Lex.Error("Couldn't parse token", new Location(line, linePosition()));
 
-            position = chompWhitespace(s, position);
+            chompWhitespace(s);
         }
 
         return tokens;
     }
 
-    public static Token parseNumber(string rawToken, int position) {
+    private static Token parseNumber(string rawToken, Location loc) {
         double value;
         bool isNumber = Double.TryParse(rawToken, out value);
-        if (!isNumber) throw new Lex.Error("Couldn't parse number", position);
-        return new Token(position, rawToken, value);
+        if (!isNumber) throw new Lex.Error("Couldn't parse number", loc);
+        return Token.number(rawToken, value, loc);
     }
 
-    public static Token parseIdentifier(string rawToken, int position) {
-        return new Token(Token.Kind.ID, position, rawToken);
+    private static Token parseIdentifier(string rawToken, Location loc) {
+        return Token.identifier(rawToken, loc);
     }
 
-    public static Token parseSymbol(string rawToken, int position) {
+    private static Token parseSymbol(string rawToken, Location loc) {
         Token.Kind kind;
         switch (rawToken) {
             case "+":     kind = Token.Kind.PLUS_SIGN; break;
@@ -126,67 +137,89 @@ public static class Lex {
             case "while":    kind = Token.Kind.WHILE; break;
             case "getc":    kind = Token.Kind.GETC; break;
             case "putc":    kind = Token.Kind.PUTC; break;
-            default: throw new Lex.Error("parseSymbol undefined for '" + rawToken + "'", position);
+            default: throw new Lex.Error("parseSymbol undefined for '" + rawToken + "'", loc);
         }
 
-        return new Token(kind, position, rawToken);
+        return Token.symbol(kind, rawToken, loc);
     }
 
 
-    public static bool isDigit(char c) {
+    private static bool isDigit(char c) {
         return c >= '0' && c <= '9';
     }
 
-    public static bool isAlpha(char c) {
+    private static bool isAlpha(char c) {
         return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
     }
 
-    public static bool isWhitespace(char c) {
-        // only spaces and tabs are considered whitespace
-        return c == ' ' || c == '\t' || c == '\n';
+    private static bool isWhitespace(char c) {
+        return c == ' ' || c == '\t' || isNewline(c);
     }
 
-    public static bool isAlphanum(char c) {
+    private static bool isNewline(char c) {
+        return c == '\n';
+    }
+
+    private static bool isAlphanum(char c) {
         return isDigit(c) || isAlpha(c);
     }
 
-    public static int chompChar(char c, string s, int from) {
-        if (from < s.Length && s[from] == c) from++;
-        return from;
+    private static void chompChar(char c, string s) {
+        if (position < s.Length && s[position] == c) {
+            checkNewline(s[position]);
+            position++;
+        }
     }
 
-    public static int chompWhitespace(string s, int from) {
+    private static void chompWhitespace(string s) {
         while (
-            from < s.Length
-            && isWhitespace(s[from])
-        ) from++;
-        return from;
+            position < s.Length
+            && isWhitespace(s[position])
+        ) {
+            checkNewline(s[position]);
+            position++;
+        }
     }
 
-    public static int chompDigits(string s, int from) {
+    private static void chompDigits(string s) {
         while (
-            from < s.Length
-            && isDigit(s[from])
-        ) from++;
-        return from;
+            position < s.Length
+            && isDigit(s[position])
+        ) {
+            checkNewline(s[position]);
+            position++;
+        }
     }
 
-    public static int chompIdentifier(string s, int from) {
-        if (!isAlpha(s[from])) return from;
+    private static void chompIdentifier(string s) {
+        if (!isAlpha(s[position])) return;
         while (
-            from < s.Length
-            && isAlphanum(s[from])
-        ) from++;
-        return from;
+            position < s.Length
+            && isAlphanum(s[position])
+        ) {
+            checkNewline(s[position]);
+            position++;
+        }
+    }
+
+    private static void checkNewline(char c) {
+        if (isNewline(c)) {
+            line++;
+            lastLinePosition = position;
+        }
+    }
+    
+    private static int linePosition() {
+        return position - lastLinePosition;
     }
 
     public class Error : Exception {
         public readonly string message;
-        public readonly int position;
+        public readonly Location loc;
 
-        public Error(string message, int position) {
+        public Error(string message, Location loc) {
             this.message = message;
-            this.position = position;
+            this.loc = loc;
         }
     }
 }
