@@ -100,15 +100,26 @@ public static class Syn {
         }
 
         // ArrayDecl
-        if (len == 4
+        if (len > 1
             && tokens[start].kind == Token.Kind.ID
             && tokens[start+1].kind == Token.Kind.OPAR_SQUARE
-            && tokens[start+2].kind == Token.Kind.NUMBER
-            && tokens[start+3].kind == Token.Kind.CPAR_SQUARE
         ) {
             Identifier id = new Identifier(tokens[start].raw);
-            int capacity = (int)tokens[start+2].value;
-            return new ArrayDecl(capacity, id);
+
+            int cparIndex = nextMatching(
+                Token.Kind.OPAR_SQUARE, Token.Kind.CPAR_SQUARE,
+                tokens, start + 1, len
+            );
+            if (cparIndex + 1 < start + len)
+                throw new Syn.Error("expected ;", tokens[cparIndex + 1].loc);
+
+            int exprStart = start + 2;
+            int exprLen = cparIndex - exprStart;
+            if (exprLen == 0)
+                throw new Syn.Error("array size must be explicit", tokens[start+1].loc);
+
+            Expr capacity = parseExpr(tokens, exprStart, exprLen);
+            return new ArrayDecl(id, capacity);
         }
 
         // While
@@ -197,6 +208,33 @@ public static class Syn {
         throw new Syn.Error("unexpected token", tokens[blockCpar + 2].loc);
     }
 
+    // a list of comma-separated expressions
+    private static List<Expr> parseExprList(Token[] tokens, int start, int len) {
+        int cursor = start;
+        List<Expr> expressions = new List<Expr>();
+
+        int exprStart = start;
+        while (cursor < start + len
+        ) {
+            if (tokens[cursor].kind == Token.Kind.COMMA) {
+                int exprLen = cursor - exprStart;
+                if (exprLen < 1) throw new Syn.Error("missing expression", tokens[cursor].loc);
+                Expr expr = parseExpr(tokens, exprStart, exprLen);
+                expressions.Add(expr);
+                exprStart = cursor + 1;
+            }
+            cursor++;
+        }
+
+        int unparsedLen = start + len - exprStart;
+        if (unparsedLen > 0) {
+            Expr expr = parseExpr(tokens, exprStart, unparsedLen);
+            expressions.Add(expr);
+        }
+
+        return expressions;
+    }
+
     private static Expr parseExpr(Token[] tokens, int start, int len) {
         Token firstToken = tokens[start];
         Token lastToken = tokens[start + len - 1];
@@ -269,8 +307,22 @@ public static class Syn {
             return parseUnOp(unOpIndex, tokens, start, len);
         }
 
+        // IndexedArray or LiteralArray
         if (firstToken.kind == Token.Kind.OPAR_SQUARE) {
-            return parseIndexedArray(tokens, start, len);
+            int cparIndex = nextMatching(
+                Token.Kind.OPAR_SQUARE, Token.Kind.CPAR_SQUARE,
+                tokens, start, len
+            );
+            if (cparIndex + 1 < start + len) {
+                return parseIndexedArray(tokens, start, len);
+            }
+            else {
+                int exprListStart = start + 1;
+                int exprListLen = cparIndex - exprListStart;
+                return new LiteralArray(
+                    parseExprList(tokens, exprListStart, exprListLen)
+                );
+            }
         }
 
         // parentheses removal

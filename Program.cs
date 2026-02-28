@@ -20,11 +20,13 @@
     }
 
     public static void runTests() {
-        string[] tests = {
-            // "if 1>2 {23} else {333}",
-            // "x=23; if x>24 {23} else if x > 12 {333}",
-            // "x=23; if x>24 {23} else if x > 23.5 {neg12} else if x < 0 {333}",
-        };
+        // string[] tests = {
+        //     "a[2^10]",
+        //     "a = [1,2,3,4]",
+        //     "if 1>2 {23} else {333}",
+        //     "x=23; if x>24 {23} else if x > 12 {333}",
+        //     "x=23; if x>24 {23} else if x > 23.5 {neg12} else if x < 0 {333}",
+        // };
         Console.WriteLine("---------------------");
         foreach (string test in tests) {
             Interpreter t = new Interpreter(true);

@@ -1,14 +1,18 @@
 public class ArrayDecl : Stmt {
-    private int capacity;
+    private Expr capacity;
     private Identifier id;
 
-    public ArrayDecl(int capacity, Identifier id) {
-        this.capacity = capacity;
+    public ArrayDecl(Identifier id, Expr capacity) {
         this.id = id;
+        this.capacity = capacity;
     }
 
     public override Value exec(Scope _) {
-        Value result = Value.array(capacity);
+        Value capacityValue = capacity.eval(_);
+        if (capacityValue.kind != Value.Kind.Number)
+            throw new Exception("Array capacity must be a number, found " + capacityValue.kind);
+
+        Value result = Value.array((int)capacityValue.num);
         if (_.isSet(id.name)) throw new Exception("Can't redeclare an array");
         _.set(id.name, result);
         return result;
