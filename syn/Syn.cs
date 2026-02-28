@@ -11,36 +11,36 @@ public static class Syn {
         List<Stmt> statements = new List<Stmt>();
 
         int cursor = start;
+        int stmtStart = start;
+        int blockLevel = 0;
+        int blockOparIndex = -1;
         while (cursor < start + len) {
-            if (tokens[cursor].kind == Token.Kind.SEMICOLON) {
-                cursor++;
-                continue;
+            Token curToken = tokens[cursor];
+
+            if (curToken.kind == Token.Kind.OPAR_CURLY) blockLevel++;
+            else if (curToken.kind == Token.Kind.CPAR_CURLY) blockLevel--;
+            else if (curToken.kind == Token.Kind.SEMICOLON && blockLevel == 0) {
+                int stmtLen = cursor - stmtStart;
+                if (stmtLen > 0) {
+                    Stmt s = parseStmt(tokens, stmtStart, stmtLen);
+                    statements.Add(s);
+                }
+                stmtStart = cursor + 1;
             }
 
-            int stmtStart = cursor;
-
-            while (cursor < start + len && (
-                tokens[cursor].kind != Token.Kind.SEMICOLON &&
-                tokens[cursor].kind != Token.Kind.OPAR_CURLY
-            )) cursor++;
-
-            if (cursor < start + len
-                && tokens[cursor].kind == Token.Kind.OPAR_CURLY
-            ) {
-                int remainingLen = start + len - cursor;
-                cursor = 1 + nextMatching(
-                    Token.Kind.OPAR_CURLY, Token.Kind.CPAR_CURLY,
-                    tokens, cursor, remainingLen
-                );
-                remainingLen = start + len - cursor;
-                cursor = next(Token.Kind.SEMICOLON, tokens, cursor, remainingLen);
-            }
-
-            int stmtLen = cursor - stmtStart;
-            Stmt s = parseStmt(tokens, stmtStart, stmtLen);
-            statements.Add(s);
+            if (curToken.kind == Token.Kind.OPAR_CURLY
+                && blockOparIndex < 0) blockOparIndex = cursor;
+            if (blockLevel < 0) throw new Syn.Error("Block never opened", curToken.loc);
 
             cursor++;
+        }
+
+        if (blockLevel > 0) throw new Syn.Error("Block never closed", tokens[blockOparIndex].loc);
+
+        int unparsedLen = start + len - stmtStart;
+        if (unparsedLen > 0) {
+            Stmt s = parseStmt(tokens, stmtStart, unparsedLen);
+            statements.Add(s);
         }
 
         return new StmtList(statements);
