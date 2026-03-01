@@ -10,6 +10,7 @@ public class StmtList : Stmt {
         Value result = new Value();
         foreach (Stmt s in statements) {
             result = s.exec(_);
+            _.clearTempMemory();
         }
         return result;
     }

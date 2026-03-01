@@ -15,7 +15,7 @@ public class BinOp : Expr {
         this.r = r;
     }
 
-    public Value eval(Scope _) {
+    public override Value eval(Scope _) {
         Value lval = l.eval(_);
         Value rval = r.eval(_);
         if (lval.kind == Value.Kind.Number && rval.kind == Value.Kind.Number) {

@@ -13,7 +13,7 @@ public class UnOp : Expr {
         this.arg = arg;
     }
 
-    public Value eval(Scope _) {
+    public override Value eval(Scope _) {
         Value val = arg.eval(_);
         if (val.kind == Value.Kind.Number) {
             switch (kind) {

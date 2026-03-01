@@ -17,7 +17,7 @@ public class TernOp : Expr {
         this.arg2 = arg2;
     }
 
-    public Value eval(Scope _) {
+    public override Value eval(Scope _) {
         Value arg0Val = arg0.eval(_);
         if (arg0Val.kind == Value.Kind.Number) {
             switch (kind) {

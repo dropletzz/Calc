@@ -5,8 +5,10 @@ public class LiteralArray : Expr {
         this.expressions = expressions;
     }
 
-    public Value eval(Scope _) {
+    public override Value eval(Scope _) {
         Value array = Value.array(expressions.Count);
+        if (!this.isAssigned) _.addTempValue(array);
+
         for (int i = 0; i < expressions.Count; i++) {
             Value element = expressions[i].eval(_);
             if (element.kind != Value.Kind.Number)

@@ -6,7 +6,7 @@ public class Literal : Expr {
         this.value = value;
     }
 
-    public Value eval(Scope _) {
+    public override Value eval(Scope _) {
         return value;
     }
 

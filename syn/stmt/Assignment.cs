@@ -5,6 +5,7 @@ public class Assignment : Stmt {
     public Assignment(Identifier id, Expr assignee) {
         this.id = id;
         this.assignee = assignee;
+        this.assignee.setIsAssigned(true);
     }
 
     public override Value exec(Scope _) {

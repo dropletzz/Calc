@@ -6,7 +6,7 @@ public class Identifier : Expr, Assignable {
         this.name = name;
     }
 
-    public Value eval(Scope _) {
+    public override Value eval(Scope _) {
         Value value;
         if (_.get(name, out value)) return value;
         throw new Exception("Undefined identifier '"+name+"'");

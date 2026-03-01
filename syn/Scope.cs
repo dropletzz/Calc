@@ -1,14 +1,17 @@
 public class Scope {
     private Dictionary<string, Value> bindings;
+    private List<Value> tempValues;
     private Scope? parent;
 
     public Scope() {
         this.bindings = new Dictionary<string, Value>();
+        this.tempValues = new List<Value>();
         this.parent = null;
     }
 
     public Scope(Scope parent) {
         this.bindings = new Dictionary<string, Value>();
+        this.tempValues = new List<Value>();
         this.parent = parent;
     }
 
@@ -37,9 +40,20 @@ public class Scope {
         return false;
     }
 
-    public void exit() {
-        foreach (var (name, val) in bindings) {
-            if (val.kind == Value.Kind.Array) val.freeArray();
-        }
+    public void addTempValue(Value val) {
+        this.tempValues.Add(val);
+    }
+
+    public void clearTempMemory() {
+        foreach (var val in this.tempValues) clearValue(val);
+        this.tempValues.Clear();
+    }
+
+    public void clearMemory() {
+        foreach (var (name, val) in bindings) clearValue(val);
+    }
+
+    private static void clearValue(Value val) {
+        if (val.kind == Value.Kind.Array) val.freeArray();
     }
 }

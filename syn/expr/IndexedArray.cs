@@ -8,7 +8,7 @@ public class IndexedArray : Expr, Assignable {
         this.id = id;
     }
 
-    public Value eval(Scope _) {
+    public override Value eval(Scope _) {
         var (i, val) = ival(_);
         return Value.number(val.arr[i]);
     }
