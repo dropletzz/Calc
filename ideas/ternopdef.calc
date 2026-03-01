@@ -1,0 +1,5 @@
+a < x < b means x > a and x < b;
+
+numbers = [1...30];
+withinRange = 5 < _ < 10;
+print(numbers map withinRange);

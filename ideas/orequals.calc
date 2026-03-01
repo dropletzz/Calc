@@ -1,0 +1,6 @@
+isWhitespace c means
+    c eq ' '
+    or eq '\t'
+    or eq '\n'
+    or eq '\r';
+    

@@ -1,0 +1,7 @@
+url = "https://some.url/api/products";
+
+Ok(response) = http::send(http::GET, url)
+    orpanic Err(e) { printf "Could not GET % because %", url, e.message };
+Ok(products) = json::from_str(:body of response);
+
+printf "total: %", (products map (:price of)) reduce + from 0;
