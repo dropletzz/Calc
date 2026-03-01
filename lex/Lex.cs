@@ -154,20 +154,31 @@ public static class Lex {
     }
 
     private static bool isWhitespace(char c) {
-        return c == ' ' || c == '\t' || isNewline(c);
-    }
-
-    private static bool isNewline(char c) {
-        return c == '\n';
+        return c == ' ' || c == '\t' || c == '\n' || c == '\r';
     }
 
     private static bool isAlphanum(char c) {
         return isDigit(c) || isAlpha(c);
     }
 
+    private static void checkNewline(string s) {
+        char c = s[position];
+        int newLineLen = 0;
+        if (c == '\n') newLineLen = 1;
+        else if (c == '\r') {
+            bool crlf = position + 1 < s.Length && s[position + 1] == '\n';
+            newLineLen = crlf ? 2 : 1;
+        }
+
+        if (newLineLen > 0) {
+            line++;
+            lastLinePosition = position + newLineLen;
+        }
+    }
+
     private static void chompChar(char c, string s) {
         if (position < s.Length && s[position] == c) {
-            checkNewline(s[position]);
+            checkNewline(s);
             position++;
         }
     }
@@ -177,7 +188,7 @@ public static class Lex {
             position < s.Length
             && isWhitespace(s[position])
         ) {
-            checkNewline(s[position]);
+            checkNewline(s);
             position++;
         }
     }
@@ -187,7 +198,7 @@ public static class Lex {
             position < s.Length
             && isDigit(s[position])
         ) {
-            checkNewline(s[position]);
+            checkNewline(s);
             position++;
         }
     }
@@ -198,18 +209,11 @@ public static class Lex {
             position < s.Length
             && isAlphanum(s[position])
         ) {
-            checkNewline(s[position]);
+            checkNewline(s);
             position++;
         }
     }
 
-    private static void checkNewline(char c) {
-        if (isNewline(c)) {
-            line++;
-            lastLinePosition = position;
-        }
-    }
-    
     private static int linePosition() {
         return position - lastLinePosition;
     }
