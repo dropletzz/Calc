@@ -16,6 +16,10 @@ public class Scope {
         if (this.parent != null && this.parent.isSet(name)) {
             this.parent.set(name, value);
         } else {
+            if (this.bindings.ContainsKey(name)) {
+                Value val = this.bindings[name];
+                if (val.kind == Value.Kind.Array) val.freeArray();
+            }
             this.bindings[name] = value;
         }
     }

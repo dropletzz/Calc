@@ -13,7 +13,6 @@ public class ArrayDecl : Stmt {
             throw new Exception("Array capacity must be a number, found " + capacityValue.kind);
 
         Value result = Value.array((int)capacityValue.num);
-        if (_.isSet(id.name)) throw new Exception("Can't redeclare an array");
         _.set(id.name, result);
         return result;
     }
