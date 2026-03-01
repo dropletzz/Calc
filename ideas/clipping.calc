@@ -1,0 +1,7 @@
+x clip a to b means
+    a if x < a else
+    (x if x < b else b);
+
+numbers = 0...10;
+numbers map= clip 2 to 4;
+print numbers;
