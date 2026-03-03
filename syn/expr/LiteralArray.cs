@@ -10,12 +10,20 @@ public class LiteralArray : Expr {
         if (!this.isAssigned) _.addTempValue(array);
 
         for (int i = 0; i < expressions.Count; i++) {
-            Value element = expressions[i].eval(_);
+            Value element = evalAt(i, _);
             if (element.kind != Value.Kind.Number)
                 throw new Exception("array elements must be numbers");
             array.arr[i] = element.num;
         }
         return array;
+    }
+
+    public Value evalAt(int i, Scope _) {
+        return expressions[i].eval(_);
+    }
+
+    public int count() {
+        return expressions.Count;
     }
 
     public override string ToString() {

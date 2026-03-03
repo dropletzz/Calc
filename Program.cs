@@ -21,7 +21,7 @@
 
     public static void runTests() {
         // string[] tests = {
-        //     "[2^10]a; a[2^5] = 123",
+        // "[1337]x = [1,3,3,7]; y=28; [x[y], x[y+1], x[y+2], x[y+3]]",
         // };
         Console.WriteLine("---------------------");
         foreach (string test in tests) {
@@ -108,6 +108,7 @@
         "[12]x; x[4]=37",
         "[12]x; x[4]=37; x[4]",
         "[12]x; x[4]=37; x[2+2]",
+        "[1337]x = [1,3,3,7]; y=28; [x[y], x[y+1], x[y+2], x[y+3]]",
 
         // Error messages
         "3/ ",

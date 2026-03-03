@@ -111,15 +111,37 @@ public static class Syn {
                 && tokens[cparIndex + 1].kind != Token.Kind.ID
             ) throw new Syn.Error("expected identifier", tokens[cparIndex + 1].loc);
 
-            Identifier id = new Identifier(tokens[cparIndex + 1].raw);
-
             int exprStart = start + 1;
             int exprLen = cparIndex - exprStart;
             if (exprLen == 0)
                 throw new Syn.Error("array size must be explicit", tokens[start+1].loc);
 
-            Expr capacity = parseExpr(tokens, exprStart, exprLen);
-            return new ArrayDecl(id, capacity);
+            int idIndex = cparIndex + 1;
+            if (idIndex < start + len
+                && tokens[idIndex].kind == Token.Kind.ID
+            ) {
+                Expr capacity = parseExpr(tokens, exprStart, exprLen);
+
+                Identifier id = new Identifier(tokens[idIndex].raw);
+
+                if (cparIndex + 2 >= start + len)
+                    return new ArrayDecl(id, capacity);
+
+                int equalsIndex = cparIndex + 2;
+                if (tokens[equalsIndex].kind == Token.Kind.EQUALS) {
+                    int arrayStart = equalsIndex + 1;
+                    if (arrayStart < start + len
+                        && tokens[arrayStart].kind != Token.Kind.OPAR_SQUARE
+                    ) throw new Syn.Error("expected [", tokens[arrayStart].loc);
+
+                    if (arrayStart >= start + len)
+                        throw new Syn.Error("expected an expression", tokens[cparIndex + 2].loc);
+
+                    int arrayLen = start + len - arrayStart;
+                    LiteralArray literal = parseLiteralArray(tokens, arrayStart, arrayLen);
+                    return new ArrayDecl(id, capacity, literal);
+                }
+            }
         }
 
         // While
@@ -310,20 +332,8 @@ public static class Syn {
         }
 
         // LiteralArray
-        if (firstToken.kind == Token.Kind.OPAR_SQUARE) {
-            int cparIndex = nextMatching(
-                Token.Kind.OPAR_SQUARE, Token.Kind.CPAR_SQUARE,
-                tokens, start, len
-            );
-
-            if (cparIndex + 1 == start + len) {
-                int exprListStart = start + 1;
-                int exprListLen = cparIndex - exprListStart;
-                return new LiteralArray(
-                    parseExprList(tokens, exprListStart, exprListLen)
-                );
-            }
-        }
+        if (firstToken.kind == Token.Kind.OPAR_SQUARE) 
+            return parseLiteralArray(tokens, start, len);
 
         // IndexedArray
         if (len > 2
@@ -367,6 +377,25 @@ public static class Syn {
         Identifier id = new Identifier(tokens[start].raw);
         Expr indExpr = parseExpr(tokens, start + 2, len - 3);
         return new IndexedArray(id, indExpr);
+    }
+
+    private static LiteralArray parseLiteralArray(Token[] tokens, int start, int len) {
+        if (tokens[start].kind != Token.Kind.OPAR_SQUARE)
+            throw new Syn.Error("expected [", tokens[start].loc);
+
+        int cparIndex = nextMatching(
+            Token.Kind.OPAR_SQUARE, Token.Kind.CPAR_SQUARE,
+            tokens, start, len
+        );
+
+        if (cparIndex + 1 < start + len)
+            throw new Syn.Error("array literal ends here", tokens[cparIndex].loc);
+
+        int exprListStart = start + 1;
+        int exprListLen = cparIndex - exprListStart;
+        return new LiteralArray(
+            parseExprList(tokens, exprListStart, exprListLen)
+        );
     }
 
     private static UnOp parseUnOp(int unOpIndex, Token[] tokens, int start, int len) {
