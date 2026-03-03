@@ -7,7 +7,7 @@ RIGHT = 62;
 OPAR  = 91;
 CPAR  = 93;
 
-instructions[108];
+[108] instructions;
 instructions[0] = PLUS;
 instructions[1] = PLUS;
 instructions[2] = PLUS;
@@ -118,7 +118,7 @@ instructions[106] = MINUS;
 instructions[107] = DOT;
 iptr = 0;
 
-memory[1024];
+[1024] memory;
 mptr = 0;
 
 while iptr < len instructions {

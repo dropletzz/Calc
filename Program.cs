@@ -21,11 +21,7 @@
 
     public static void runTests() {
         // string[] tests = {
-        //     "a[2^10]",
-        //     "a = [1,2,3,4]",
-        //     "if 1>2 {23} else {333}",
-        //     "x=23; if x>24 {23} else if x > 12 {333}",
-        //     "x=23; if x>24 {23} else if x > 23.5 {neg12} else if x < 0 {333}",
+        //     "[2^10]a; a[2^5] = 123",
         // };
         Console.WriteLine("---------------------");
         foreach (string test in tests) {
@@ -107,11 +103,11 @@
         "x = 37; while x > 3 { print x; x = x - 10 }",
         "{ in = 2 }; 3",
         "outer = 1; { inner = 12; outer = outer + 1; print inner }; print outer",
-        "x[6]; i = 0; while (i < 6) { x[i] = i*i; i = i+1 }; i = 0; while (i < 6) { print x[i]; i = i+1 }",
+        "[6]x; i = 0; while (i < 6) { x[i] = i*i; i = i+1 }; i = 0; while (i < 6) { print x[i]; i = i+1 }",
 
-        "x[12]; x[4]=37",
-        "x[12]; x[4]=37; x[4]",
-        "x[12]; x[4]=37; x[2+2]",
+        "[12]x; x[4]=37",
+        "[12]x; x[4]=37; x[4]",
+        "[12]x; x[4]=37; x[2+2]",
 
         // Error messages
         "3/ ",
@@ -122,6 +118,6 @@
         "2 * ((13 - 12) * log 2",
         "(13 - 12)) * log 2",
         "x",
-        "x[12]; x[4]=37;x[2*12]",
+        "[12]x; x[4]=37;x[2*12]",
     };
 }

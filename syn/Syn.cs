@@ -102,20 +102,18 @@ public static class Syn {
         }
 
         // ArrayDecl
-        if (len > 1
-            && tokens[start].kind == Token.Kind.ID
-            && tokens[start+1].kind == Token.Kind.OPAR_SQUARE
-        ) {
-            Identifier id = new Identifier(tokens[start].raw);
-
+        if (tokens[start].kind == Token.Kind.OPAR_SQUARE) {
             int cparIndex = nextMatching(
                 Token.Kind.OPAR_SQUARE, Token.Kind.CPAR_SQUARE,
-                tokens, start + 1, len
+                tokens, start, len
             );
-            if (cparIndex + 1 < start + len)
-                throw new Syn.Error("expected ;", tokens[cparIndex + 1].loc);
+            if (cparIndex + 1 < start + len
+                && tokens[cparIndex + 1].kind != Token.Kind.ID
+            ) throw new Syn.Error("expected identifier", tokens[cparIndex + 1].loc);
 
-            int exprStart = start + 2;
+            Identifier id = new Identifier(tokens[cparIndex + 1].raw);
+
+            int exprStart = start + 1;
             int exprLen = cparIndex - exprStart;
             if (exprLen == 0)
                 throw new Syn.Error("array size must be explicit", tokens[start+1].loc);
