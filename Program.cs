@@ -107,11 +107,11 @@
         "x = 37; while x > 3 { print x; x = x - 10 }",
         "{ in = 2 }; 3",
         "outer = 1; { inner = 12; outer = outer + 1; print inner }; print outer",
-        "x[6]; i = 0; while (i < 6) { [i]x = i*i; i = i+1 }; i = 0; while (i < 6) { print [i]x; i = i+1 }",
+        "x[6]; i = 0; while (i < 6) { x[i] = i*i; i = i+1 }; i = 0; while (i < 6) { print x[i]; i = i+1 }",
 
-        "x[12]; [4]x=37",
-        "x[12]; [4]x=37; [4]x",
-        "x[12]; [4]x=37;[2+2]x",
+        "x[12]; x[4]=37",
+        "x[12]; x[4]=37; x[4]",
+        "x[12]; x[4]=37; x[2+2]",
 
         // Error messages
         "3/ ",
@@ -122,6 +122,6 @@
         "2 * ((13 - 12) * log 2",
         "(13 - 12)) * log 2",
         "x",
-        "x[12]; [4]x=37;[2*12]x",
+        "x[12]; x[4]=37;x[2*12]",
     };
 }
