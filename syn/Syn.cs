@@ -75,7 +75,9 @@ public static class Syn {
         }
 
         // IndexedAssignment
-        if (len > 1 && firstToken.kind == Token.Kind.OPAR_SQUARE
+        if (len > 1
+            && firstToken.kind == Token.Kind.ID
+            && tokens[start + 1].kind == Token.Kind.OPAR_SQUARE
         ) {
             int assignIndex = start;
             while (assignIndex < start+len && tokens[assignIndex].kind != Token.Kind.EQUALS) assignIndex++;
@@ -259,6 +261,8 @@ public static class Syn {
                     tokens, start, len
                 );
                 i++;
+                if (i >= start + len) break;
+                t = tokens[i];
             }
 
             if (t.kind == Token.Kind.OPAR && parLevel == 0) firstOparIndex = i;
@@ -307,16 +311,14 @@ public static class Syn {
             return parseUnOp(unOpIndex, tokens, start, len);
         }
 
-        // IndexedArray or LiteralArray
+        // LiteralArray
         if (firstToken.kind == Token.Kind.OPAR_SQUARE) {
             int cparIndex = nextMatching(
                 Token.Kind.OPAR_SQUARE, Token.Kind.CPAR_SQUARE,
                 tokens, start, len
             );
-            if (cparIndex + 1 < start + len) {
-                return parseIndexedArray(tokens, start, len);
-            }
-            else {
+
+            if (cparIndex + 1 == start + len) {
                 int exprListStart = start + 1;
                 int exprListLen = cparIndex - exprListStart;
                 return new LiteralArray(
@@ -324,6 +326,12 @@ public static class Syn {
                 );
             }
         }
+
+        // IndexedArray
+        if (len > 2
+            && firstToken.kind == Token.Kind.ID
+            && tokens[start + 1].kind == Token.Kind.OPAR_SQUARE
+        ) return parseIndexedArray(tokens, start, len);
 
         // parentheses removal
         if (firstToken.kind == Token.Kind.OPAR &&
@@ -344,26 +352,23 @@ public static class Syn {
     }
 
     private static IndexedArray parseIndexedArray(Token[] tokens, int start, int len) {
-        if (tokens[start].kind != Token.Kind.OPAR_SQUARE)
-            throw new Syn.Error("IndexedArray must start with '['", tokens[start].loc);
+        if (tokens[start].kind != Token.Kind.ID)
+            throw new Syn.Error("should be an identifier", tokens[start].loc);
+        if (len > 1 && tokens[start + 1].kind != Token.Kind.OPAR_SQUARE)
+            throw new Syn.Error("expected [", tokens[start].loc);
+        if (tokens[start + len - 1].kind != Token.Kind.CPAR_SQUARE)
+            throw new Syn.Error("expected ]", tokens[start + len - 1].loc);
 
-        int cparIndex = start;
-        while (cparIndex < start + len
-            && tokens[cparIndex].kind != Token.Kind.CPAR_SQUARE
-        ) cparIndex++;
+        int cparIndex = nextMatching(
+            Token.Kind.OPAR_SQUARE, Token.Kind.CPAR_SQUARE,
+            tokens, start + 1, len - 1
+        );
+        if (cparIndex + 1 < start + len)
+            throw new Syn.Error("unexpected token", tokens[cparIndex + 1].loc);
 
-        if (cparIndex >= start + len)
-            throw new Syn.Error("missing ']'", tokens[start + len - 1].loc);
-        if (cparIndex + 1 < start + len
-            && tokens[cparIndex + 1].kind != Token.Kind.ID
-        ) throw new Syn.Error("Should be an identifier", tokens[cparIndex + 1].loc);
-        if (cparIndex + 2 < start + len)
-            throw new Syn.Error("Unexpected token", tokens[cparIndex + 2].loc);
-
-        int indExprLen = cparIndex - start - 1;
-        Expr indExpr = parseExpr(tokens, start + 1, indExprLen);
-        Identifier id = new Identifier(tokens[cparIndex + 1].raw);
-        return new IndexedArray(indExpr, id);
+        Identifier id = new Identifier(tokens[start].raw);
+        Expr indExpr = parseExpr(tokens, start + 2, len - 3);
+        return new IndexedArray(id, indExpr);
     }
 
     private static UnOp parseUnOp(int unOpIndex, Token[] tokens, int start, int len) {

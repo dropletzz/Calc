@@ -3,7 +3,7 @@ i = 0;
 avg = 0;
 
 while i < len a {
-    avg = avg + [i]a;
+    avg = avg + a[i];
     i = i + 1;
 };
 

@@ -3,9 +3,9 @@ public class IndexedArray : Expr, Assignable {
     public readonly Expr indExpr;
     public readonly Identifier id;
 
-    public IndexedArray(Expr indExpr, Identifier id) {
-        this.indExpr = indExpr;
+    public IndexedArray(Identifier id, Expr indExpr) {
         this.id = id;
+        this.indExpr = indExpr;
     }
 
     public override Value eval(Scope _) {

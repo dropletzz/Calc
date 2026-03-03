@@ -8,133 +8,133 @@ OPAR  = 91;
 CPAR  = 93;
 
 instructions[108];
-[0]instructions = PLUS;
-[1]instructions = PLUS;
-[2]instructions = PLUS;
-[3]instructions = PLUS;
-[4]instructions = PLUS;
-[5]instructions = PLUS;
-[6]instructions = PLUS;
-[7]instructions = PLUS;
-[8]instructions = PLUS;
-[9]instructions = PLUS;
-[10]instructions = OPAR;
-[11]instructions = RIGHT;
-[12]instructions = PLUS;
-[13]instructions = RIGHT;
-[14]instructions = PLUS;
-[15]instructions = PLUS;
-[16]instructions = PLUS;
-[17]instructions = RIGHT;
-[18]instructions = PLUS;
-[19]instructions = PLUS;
-[20]instructions = PLUS;
-[21]instructions = PLUS;
-[22]instructions = PLUS;
-[23]instructions = PLUS;
-[24]instructions = PLUS;
-[25]instructions = RIGHT;
-[26]instructions = PLUS;
-[27]instructions = PLUS;
-[28]instructions = PLUS;
-[29]instructions = PLUS;
-[30]instructions = PLUS;
-[31]instructions = PLUS;
-[32]instructions = PLUS;
-[33]instructions = PLUS;
-[34]instructions = PLUS;
-[35]instructions = PLUS;
-[36]instructions = LEFT;
-[37]instructions = LEFT;
-[38]instructions = LEFT;
-[39]instructions = LEFT;
-[40]instructions = MINUS;
-[41]instructions = CPAR;
-[42]instructions = RIGHT;
-[43]instructions = RIGHT;
-[44]instructions = RIGHT;
-[45]instructions = PLUS;
-[46]instructions = PLUS;
-[47]instructions = DOT;
-[48]instructions = RIGHT;
-[49]instructions = PLUS;
-[50]instructions = DOT;
-[51]instructions = PLUS;
-[52]instructions = PLUS;
-[53]instructions = PLUS;
-[54]instructions = PLUS;
-[55]instructions = PLUS;
-[56]instructions = PLUS;
-[57]instructions = PLUS;
-[58]instructions = DOT;
-[59]instructions = DOT;
-[60]instructions = PLUS;
-[61]instructions = PLUS;
-[62]instructions = PLUS;
-[63]instructions = DOT;
-[64]instructions = LEFT;
-[65]instructions = LEFT;
-[66]instructions = PLUS;
-[67]instructions = PLUS;
-[68]instructions = DOT;
-[69]instructions = RIGHT;
-[70]instructions = PLUS;
-[71]instructions = PLUS;
-[72]instructions = PLUS;
-[73]instructions = PLUS;
-[74]instructions = PLUS;
-[75]instructions = PLUS;
-[76]instructions = PLUS;
-[77]instructions = PLUS;
-[78]instructions = PLUS;
-[79]instructions = PLUS;
-[80]instructions = PLUS;
-[81]instructions = PLUS;
-[82]instructions = PLUS;
-[83]instructions = PLUS;
-[84]instructions = PLUS;
-[85]instructions = DOT;
-[86]instructions = RIGHT;
-[87]instructions = DOT;
-[88]instructions = PLUS;
-[89]instructions = PLUS;
-[90]instructions = PLUS;
-[91]instructions = DOT;
-[92]instructions = MINUS;
-[93]instructions = MINUS;
-[94]instructions = MINUS;
-[95]instructions = MINUS;
-[96]instructions = MINUS;
-[97]instructions = MINUS;
-[98]instructions = DOT;
-[99]instructions = MINUS;
-[100]instructions = MINUS;
-[101]instructions = MINUS;
-[102]instructions = MINUS;
-[103]instructions = MINUS;
-[104]instructions = MINUS;
-[105]instructions = MINUS;
-[106]instructions = MINUS;
-[107]instructions = DOT;
+instructions[0] = PLUS;
+instructions[1] = PLUS;
+instructions[2] = PLUS;
+instructions[3] = PLUS;
+instructions[4] = PLUS;
+instructions[5] = PLUS;
+instructions[6] = PLUS;
+instructions[7] = PLUS;
+instructions[8] = PLUS;
+instructions[9] = PLUS;
+instructions[10] = OPAR;
+instructions[11] = RIGHT;
+instructions[12] = PLUS;
+instructions[13] = RIGHT;
+instructions[14] = PLUS;
+instructions[15] = PLUS;
+instructions[16] = PLUS;
+instructions[17] = RIGHT;
+instructions[18] = PLUS;
+instructions[19] = PLUS;
+instructions[20] = PLUS;
+instructions[21] = PLUS;
+instructions[22] = PLUS;
+instructions[23] = PLUS;
+instructions[24] = PLUS;
+instructions[25] = RIGHT;
+instructions[26] = PLUS;
+instructions[27] = PLUS;
+instructions[28] = PLUS;
+instructions[29] = PLUS;
+instructions[30] = PLUS;
+instructions[31] = PLUS;
+instructions[32] = PLUS;
+instructions[33] = PLUS;
+instructions[34] = PLUS;
+instructions[35] = PLUS;
+instructions[36] = LEFT;
+instructions[37] = LEFT;
+instructions[38] = LEFT;
+instructions[39] = LEFT;
+instructions[40] = MINUS;
+instructions[41] = CPAR;
+instructions[42] = RIGHT;
+instructions[43] = RIGHT;
+instructions[44] = RIGHT;
+instructions[45] = PLUS;
+instructions[46] = PLUS;
+instructions[47] = DOT;
+instructions[48] = RIGHT;
+instructions[49] = PLUS;
+instructions[50] = DOT;
+instructions[51] = PLUS;
+instructions[52] = PLUS;
+instructions[53] = PLUS;
+instructions[54] = PLUS;
+instructions[55] = PLUS;
+instructions[56] = PLUS;
+instructions[57] = PLUS;
+instructions[58] = DOT;
+instructions[59] = DOT;
+instructions[60] = PLUS;
+instructions[61] = PLUS;
+instructions[62] = PLUS;
+instructions[63] = DOT;
+instructions[64] = LEFT;
+instructions[65] = LEFT;
+instructions[66] = PLUS;
+instructions[67] = PLUS;
+instructions[68] = DOT;
+instructions[69] = RIGHT;
+instructions[70] = PLUS;
+instructions[71] = PLUS;
+instructions[72] = PLUS;
+instructions[73] = PLUS;
+instructions[74] = PLUS;
+instructions[75] = PLUS;
+instructions[76] = PLUS;
+instructions[77] = PLUS;
+instructions[78] = PLUS;
+instructions[79] = PLUS;
+instructions[80] = PLUS;
+instructions[81] = PLUS;
+instructions[82] = PLUS;
+instructions[83] = PLUS;
+instructions[84] = PLUS;
+instructions[85] = DOT;
+instructions[86] = RIGHT;
+instructions[87] = DOT;
+instructions[88] = PLUS;
+instructions[89] = PLUS;
+instructions[90] = PLUS;
+instructions[91] = DOT;
+instructions[92] = MINUS;
+instructions[93] = MINUS;
+instructions[94] = MINUS;
+instructions[95] = MINUS;
+instructions[96] = MINUS;
+instructions[97] = MINUS;
+instructions[98] = DOT;
+instructions[99] = MINUS;
+instructions[100] = MINUS;
+instructions[101] = MINUS;
+instructions[102] = MINUS;
+instructions[103] = MINUS;
+instructions[104] = MINUS;
+instructions[105] = MINUS;
+instructions[106] = MINUS;
+instructions[107] = DOT;
 iptr = 0;
 
 memory[1024];
 mptr = 0;
 
 while iptr < len instructions {
-    ins = [iptr]instructions;
+    ins = instructions[iptr];
     
     if ins == PLUS {
-        [mptr]memory = ([mptr]memory + 1) % 256
+        memory[mptr] = (memory[mptr] + 1) % 256
     }
     else if ins == COMMA {
-        getc [mptr]memory
+        getc memory[mptr]
     }
     else if ins == MINUS {
-        [mptr]memory = ([mptr]memory - 1) % 256
+        memory[mptr] = (memory[mptr] - 1) % 256
     }
     else if ins == DOT {
-        putc [mptr]memory
+        putc memory[mptr]
     }
     else if ins == LEFT {
         mptr = mptr - 1
@@ -143,11 +143,11 @@ while iptr < len instructions {
         mptr = mptr + 1
     }
     else if ins == OPAR {
-        if not [mptr]memory {
+        if not memory[mptr] {
             depth = 0;
             done = 0;
             while not done {
-                ins = [iptr]instructions;
+                ins = instructions[iptr];
 
                 if ins == OPAR { depth = depth + 1 };
                 if ins == CPAR { depth = depth - 1 };
@@ -158,11 +158,11 @@ while iptr < len instructions {
         }
     }
     else if ins == CPAR {
-        if [mptr]memory {
+        if memory[mptr] {
             depth = 0;
             done = 0;
             while not done {
-                ins = [iptr]instructions;
+                ins = instructions[iptr];
 
                 if ins == OPAR { depth = depth - 1 };
                 if ins == CPAR { depth = depth + 1 };
