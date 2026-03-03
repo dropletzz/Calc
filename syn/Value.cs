@@ -34,8 +34,9 @@ public readonly struct Value {
         return new Value(Kind.Array, arr, capacity);
     }
 
-    public void freeArray() {
-        ArrayPool<double>.Shared.Return(arr);
+    public void free() {
+        if (this.kind == Kind.Array)
+            ArrayPool<double>.Shared.Return(arr);
     }
 
     public override string ToString() {

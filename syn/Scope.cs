@@ -20,8 +20,7 @@ public class Scope {
             this.parent.set(name, value);
         } else {
             if (this.bindings.ContainsKey(name)) {
-                Value val = this.bindings[name];
-                if (val.kind == Value.Kind.Array) val.freeArray();
+                this.bindings[name].free();
             }
             this.bindings[name] = value;
         }
@@ -45,15 +44,12 @@ public class Scope {
     }
 
     public void clearTempMemory() {
-        foreach (var val in this.tempValues) clearValue(val);
+        foreach (var val in this.tempValues) val.free();
         this.tempValues.Clear();
     }
 
     public void clearMemory() {
-        foreach (var (name, val) in bindings) clearValue(val);
-    }
-
-    private static void clearValue(Value val) {
-        if (val.kind == Value.Kind.Array) val.freeArray();
+        foreach (var (name, val) in this.bindings) val.free();
+        this.clearTempMemory();
     }
 }
