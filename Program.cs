@@ -6,10 +6,7 @@
     }
 
     public static void runRepl() {
-        Console.WriteLine(
-            "Welcome to Calc (type 'bye' to exit)\n" +
-            "Type an expression like '2 + 2' to get the result"
-        );
+        Console.WriteLine("Welcome to Calc (type 'bye' to exit)\n");
         string? input = Console.ReadLine();
         Interpreter t = new Interpreter();
         while (input != null && !input.Equals("bye")) {
@@ -21,7 +18,7 @@
 
     public static void runTests() {
         // string[] tests = {
-        // "[1337]x = [1,3,3,7]; y=28; [x[y], x[y+1], x[y+2], x[y+3]]",
+        //     "[12]x = [0]; { y = x }; [12]z = [1]; print x",
         // };
         Console.WriteLine("---------------------");
         foreach (string test in tests) {
@@ -109,6 +106,7 @@
         "[12]x; x[4]=37; x[4]",
         "[12]x; x[4]=37; x[2+2]",
         "[1337]x = [1,3,3,7]; y=28; [x[y], x[y+1], x[y+2], x[y+3]]",
+        "[12]x = [0]; { y = x }; [12]z = [1]; print x",
 
         // Error messages
         "3/ ",
@@ -120,5 +118,6 @@
         "(13 - 12)) * log 2",
         "x",
         "[12]x; x[4]=37;x[2*12]",
+        "[12]x = [0]; { [12]x = [1] }; [12]z = [2]; print x",
     };
 }

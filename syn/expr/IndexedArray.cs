@@ -24,8 +24,7 @@ public class IndexedArray : Expr, Assignable {
             throw new Exception("Can't use " + index.kind + " as an index");
         int i = (int)index.num;
 
-        Value val;
-        if (_.get(id.name, out val)) {
+        if (_.tryGet(id.name, out Value val)) {
             if (val.kind != Value.Kind.Array) 
                 throw new Exception("Can't index value of type " + val.kind);
             if (i < 0 || i >= val.capacity)

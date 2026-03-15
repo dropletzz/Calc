@@ -10,6 +10,8 @@ public class Assignment : Stmt {
 
     public override Value exec(Scope _) {
         Value result = assignee.eval(_);
+        if (this.assignee is Identifier && !result.isCopy())
+            result = result.clone();
         _.set(id.name, result);
         return result;
     }

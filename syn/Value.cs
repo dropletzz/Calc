@@ -14,7 +14,7 @@ public readonly struct Value {
     private Value(Kind kind, double num) {
         this.kind = kind;
         this.num = num;
-        this.arr = [];
+        this.arr = Array.Empty<double>();
         this.capacity = 0;
     }
 
@@ -37,6 +37,19 @@ public readonly struct Value {
     public void free() {
         if (this.kind == Kind.Array)
             ArrayPool<double>.Shared.Return(arr);
+    }
+
+    public bool isCopy() {
+        return this.kind == Kind.Number;
+    }
+
+    public Value clone() {
+        if (this.kind == Kind.Array) {
+            Value clone = Value.array(this.capacity);
+            Array.Copy(this.arr, clone.arr, this.capacity);
+            return clone;
+        }
+        return Value.number(num);
     }
 
     public override string ToString() {

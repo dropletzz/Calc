@@ -32,9 +32,9 @@ public class Scope {
         return this.parent.isSet(name);
     }
 
-    public bool get(string name, out Value value) {
+    public bool tryGet(string name, out Value value) {
         if (this.bindings.TryGetValue(name, out value)) return true;
-        if (this.parent != null) return this.parent.get(name, out value);
+        if (this.parent != null) return this.parent.tryGet(name, out value);
         value = new Value();
         return false;
     }

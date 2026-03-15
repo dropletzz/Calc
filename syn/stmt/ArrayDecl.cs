@@ -16,9 +16,11 @@ public class ArrayDecl : Stmt {
     }
 
     public override Value exec(Scope _) {
+        if (_.isSet(id.name)) throw new Exception("variable "+id.name+" was already declared");
+
         Value capacityValue = capacityExpr.eval(_);
         if (capacityValue.kind != Value.Kind.Number)
-            throw new Exception("Array capacity must be a number, found " + capacityValue.kind);
+            throw new Exception("array capacity must be a number, found " + capacityValue.kind);
 
         int capacity = (int)capacityValue.num;
         Value result = Value.array(capacity);
