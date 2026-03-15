@@ -8,7 +8,9 @@ This code is organized in levels of increasing complexity:
 * [`L3`](https://github.com/dropletzz/Calc/tree/L3) added variables, arrays, if/else and while loops; this is now a programming language that only works with doubles
 
 ## How to run
-Use the command `dotnet run` to start a REPL where you can
+Use `dotnet run` to start a REPL where you can
 type in expressions and get the result.
 
-Use the command `dotnet run tests` to run some tests.
+Use `dotnet run tests` to run some tests.
+
+Use `dotnet run path/to/file` to run a program file.
