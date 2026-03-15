@@ -13,9 +13,11 @@ public class IndexedArray : Expr, Assignable {
         return Value.number(val.arr[i]);
     }
 
-    public void set(double num, Scope _) {
-        var (i, val) = ival(_);
-        val.arr[i] = num;
+    public void set(Value val, Scope _) {
+        if (val.kind != Value.Kind.Number)
+            throw new Exception("Can't assign a " + val.kind + " to an array");
+        var (i, arrayValue) = ival(_);
+        arrayValue.arr[i] = val.num;
     }
 
     private (int i, Value val) ival(Scope _) {

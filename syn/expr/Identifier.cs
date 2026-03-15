@@ -11,8 +11,8 @@ public class Identifier : Expr, Assignable {
         throw new Exception("Undefined identifier '"+name+"'");
     }
 
-    public void set(double num, Scope _) {
-        _.set(name, Value.number(num));
+    public void set(Value val, Scope _) {
+        _.set(name, val);
     }
 
     public override string ToString() {

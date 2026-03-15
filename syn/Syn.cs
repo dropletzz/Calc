@@ -2,7 +2,7 @@
 public static class Syn {
 
     public static Stmt parse(Token[] tokens, int len) {
-        if (len <= 0) throw new Syn.Error("Can't parse empty token list", new Location(0, 0));
+        if (len <= 0) throw new Syn.Error("can't parse empty token list", new Location(0, 0));
         return parseStmtList(tokens, 0, len);
     }
 
@@ -30,12 +30,12 @@ public static class Syn {
 
             if (curToken.kind == Token.Kind.OPAR_CURLY
                 && blockOparIndex < 0) blockOparIndex = cursor;
-            if (blockLevel < 0) throw new Syn.Error("Block never opened", curToken.loc);
+            if (blockLevel < 0) throw new Syn.Error("block never opened", curToken.loc);
 
             cursor++;
         }
 
-        if (blockLevel > 0) throw new Syn.Error("Block never closed", tokens[blockOparIndex].loc);
+        if (blockLevel > 0) throw new Syn.Error("block never closed", tokens[blockOparIndex].loc);
 
         int unparsedLen = start + len - stmtStart;
         if (unparsedLen > 0) {
@@ -66,7 +66,7 @@ public static class Syn {
             return new Getc(targetArr);
         }
 
-        // Assignment
+        // Assignment to an id
         if (len > 2 && firstToken.kind == Token.Kind.ID
         &&  tokens[start + 1].kind == Token.Kind.EQUALS) {
             Identifier id = new Identifier(firstToken.raw);
@@ -74,7 +74,7 @@ public static class Syn {
             return new Assignment(id, assignee);
         }
 
-        // IndexedAssignment
+        // Assignment to an array slot
         if (len > 1
             && firstToken.kind == Token.Kind.ID
             && tokens[start + 1].kind == Token.Kind.OPAR_SQUARE
@@ -82,7 +82,7 @@ public static class Syn {
             int assignIndex = start;
             while (assignIndex < start+len && tokens[assignIndex].kind != Token.Kind.EQUALS) assignIndex++;
             if (assignIndex < start + len) {
-                if (assignIndex == start+len-1) throw new Syn.Error("Missing assignee", tokens[len-1].loc);
+                if (assignIndex == start+len-1) throw new Syn.Error("missing assignee", tokens[len-1].loc);
 
                 int idxArrayLen = assignIndex - start;
                 IndexedArray idx = parseIndexedArray(tokens, start, idxArrayLen);
@@ -91,7 +91,7 @@ public static class Syn {
                 int assLen = start + len - assStart;
                 Expr assignee = parseExpr(tokens, assStart, assLen);
 
-                return new IndexedAssignment(idx, assignee);
+                return new Assignment(idx, assignee);
             }
         }
 
@@ -149,9 +149,9 @@ public static class Syn {
             int cursor = next(Token.Kind.OPAR_CURLY, tokens, start, len);
 
             if (cursor >= start + len) 
-                throw new Syn.Error("Missing block after condition", tokens[cursor - 1].loc);
+                throw new Syn.Error("missing block after condition", tokens[cursor - 1].loc);
             if (tokens[start + len - 1].kind != Token.Kind.CPAR_CURLY)
-                throw new Syn.Error("Open block never closed", tokens[cursor].loc);
+                throw new Syn.Error("open block never closed", tokens[cursor].loc);
 
             Expr cond = parseExpr(tokens, start + 1, cursor - start - 1);
 
@@ -184,7 +184,7 @@ public static class Syn {
     private static IfElse parseIfElse(Token[] tokens, int start, int len) {
         int blockOpar = next(Token.Kind.OPAR_CURLY, tokens, start, len);
         if (blockOpar >= start + len)
-            throw new Syn.Error("Missing block after condition", tokens[blockOpar - 1].loc);
+            throw new Syn.Error("missing block after condition", tokens[blockOpar - 1].loc);
 
         Expr cond = parseExpr(tokens, start + 1, blockOpar - start - 1);
 
@@ -313,10 +313,10 @@ public static class Syn {
                 unOpIndex = i;
             }
 
-            if (parLevel < 0) throw new Syn.Error("Parenthesis never opened", t.loc);
+            if (parLevel < 0) throw new Syn.Error("never opened", t.loc);
         }
 
-        if (parLevel > 0) throw new Syn.Error("Parenthesis never closed", tokens[firstOparIndex].loc);
+        if (parLevel > 0) throw new Syn.Error("never closed", tokens[firstOparIndex].loc);
 
 
         if (ternOpFirstIndex >= 0 && ternOpSecondIndex >= 0) {
@@ -353,10 +353,10 @@ public static class Syn {
             else if (firstToken.kind == Token.Kind.ID)
                 return new Identifier(firstToken.raw);
             else
-                throw new Syn.Error("Expected a literal", firstToken.loc);
+                throw new Syn.Error("expected a literal", firstToken.loc);
         }
 
-        throw new Syn.Error("Could not parse", firstToken.loc);
+        throw new Syn.Error("could not parse", firstToken.loc);
     }
 
     private static IndexedArray parseIndexedArray(Token[] tokens, int start, int len) {
@@ -401,12 +401,12 @@ public static class Syn {
     private static UnOp parseUnOp(int unOpIndex, Token[] tokens, int start, int len) {
         Token unOpToken = tokens[unOpIndex];
         if (len < 2)
-            throw new Syn.Error("Unary operator misses its agument", unOpToken.loc);
+            throw new Syn.Error("unary operator misses its agument", unOpToken.loc);
         if (unOpIndex != start)
             if (tokens[start].kind == Token.Kind.NUMBER)
-                throw new Syn.Error("Unexpected token", tokens[start+1].loc);
+                throw new Syn.Error("unexpected token", tokens[start+1].loc);
             else
-                throw new Syn.Error("Unexpected token", tokens[start].loc);
+                throw new Syn.Error("unexpected token", tokens[start].loc);
 
         Expr arg = parseExpr(tokens, start + 1, len - 1);
         return new UnOp(UnOp.kindFromToken(unOpToken), arg);
@@ -416,7 +416,7 @@ public static class Syn {
         Token binOpToken = tokens[binOpIndex];
         if (binOpIndex == start || binOpIndex == start+len-1)
             throw new Syn.Error(
-                "Binary operator misses an argument", binOpToken.loc
+                "binary operator misses an argument", binOpToken.loc
             );
 
         int lhsLen = binOpIndex - start;

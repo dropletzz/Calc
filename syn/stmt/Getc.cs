@@ -7,7 +7,7 @@ public class Getc : Stmt {
 
     public override Value exec(Scope _) {
         int input = Console.Read(); 
-        target.set((double)input, _); 
+        target.set(Value.number(input), _); 
         return Value.number(input);
     }
 

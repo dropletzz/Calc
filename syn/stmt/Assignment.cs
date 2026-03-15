@@ -1,9 +1,9 @@
 public class Assignment : Stmt {
-    protected Identifier id;
+    protected Assignable assigned;
     protected Expr assignee;
 
-    public Assignment(Identifier id, Expr assignee) {
-        this.id = id;
+    public Assignment(Assignable assigned, Expr assignee) {
+        this.assigned = assigned;
         this.assignee = assignee;
         this.assignee.setIsAssigned(true);
     }
@@ -12,11 +12,11 @@ public class Assignment : Stmt {
         Value result = assignee.eval(_);
         if (this.assignee is Identifier && !result.isCopy())
             result = result.clone();
-        _.set(id.name, result);
+        assigned.set(result, _);
         return result;
     }
 
     public override string ToString() {
-        return "ASSIGN " + assignee + " TO " + id;
+        return "ASSIGN " + assignee + " TO " + assigned;
     }
 }
