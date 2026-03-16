@@ -1,4 +1,4 @@
-public class Token {
+public readonly struct Token {
 
     public enum Kind {
         NUMBER, ID, WHILE,
