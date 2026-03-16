@@ -22,6 +22,7 @@ public static class Lex {
 
             // look for a symbol
             foreach (string sym in SYMBOLS) {
+                if (sym.Length > s.Length - position) continue;
                 found = true;
                 for (int c = 0; c < sym.Length; c++) {
                     if (s[position + c] != sym[c]) {
