@@ -1,13 +1,13 @@
 // Syntactic analyzer
 public static class Syn {
 
-    public static Stmt parse(Token[] tokens, int len) {
+    public static List<Stmt> parse(Token[] tokens, int len) {
         if (len <= 0) throw new Syn.Error("can't parse empty token list", new Location(0, 0));
         return parseStmtList(tokens, 0, len);
     }
 
     // Statements have to be separated with ';' except for the last one of each block
-    private static StmtList parseStmtList(Token[] tokens, int start, int len) {
+    private static List<Stmt> parseStmtList(Token[] tokens, int start, int len) {
         List<Stmt> statements = new List<Stmt>();
 
         int cursor = start;
@@ -43,7 +43,7 @@ public static class Syn {
             statements.Add(s);
         }
 
-        return new StmtList(statements);
+        return statements;
     }
 
     private static Stmt parseStmt(Token[] tokens, int start, int len) {
@@ -157,7 +157,7 @@ public static class Syn {
 
             int blockStart = cursor + 1;
             int blockLen = start + len - blockStart - 1;
-            StmtList statements = parseStmtList(tokens, blockStart, blockLen);
+            List<Stmt> statements = parseStmtList(tokens, blockStart, blockLen);
             Block body = new Block(statements);
             return new While(cond, body);
         }
@@ -167,7 +167,7 @@ public static class Syn {
             len > 1 && tokens[start].kind == Token.Kind.OPAR_CURLY
             && tokens[start + len - 1].kind == Token.Kind.CPAR_CURLY
         ) {
-            StmtList statements = parseStmtList(tokens, start + 1, len - 2);
+            List<Stmt> statements = parseStmtList(tokens, start + 1, len - 2);
             return new Block(statements);
         }
 
