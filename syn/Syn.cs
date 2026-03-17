@@ -1,13 +1,13 @@
 // Syntactic analyzer
 public static class Syn {
 
-    public static Stmt parse(Token[] tokens, int len) {
+    public static List<Stmt> parse(Token[] tokens, int len) {
         if (len <= 0) throw new Syn.Error("can't parse empty token list", new Location(0, 0));
         return parseStmtList(tokens, 0, len);
     }
 
     // Statements have to be separated with ';' except for the last one of each block
-    private static StmtList parseStmtList(Token[] tokens, int start, int len) {
+    private static List<Stmt> parseStmtList(Token[] tokens, int start, int len) {
         List<Stmt> statements = new List<Stmt>();
 
         int cursor = start;
@@ -43,7 +43,7 @@ public static class Syn {
             statements.Add(s);
         }
 
-        return new StmtList(statements);
+        return statements;
     }
 
     private static Stmt parseStmt(Token[] tokens, int start, int len) {
@@ -157,7 +157,7 @@ public static class Syn {
 
             int blockStart = cursor + 1;
             int blockLen = start + len - blockStart - 1;
-            StmtList statements = parseStmtList(tokens, blockStart, blockLen);
+            List<Stmt> statements = parseStmtList(tokens, blockStart, blockLen);
             Block body = new Block(statements);
             return new While(cond, body);
         }
@@ -167,7 +167,7 @@ public static class Syn {
             len > 1 && tokens[start].kind == Token.Kind.OPAR_CURLY
             && tokens[start + len - 1].kind == Token.Kind.CPAR_CURLY
         ) {
-            StmtList statements = parseStmtList(tokens, start + 1, len - 2);
+            List<Stmt> statements = parseStmtList(tokens, start + 1, len - 2);
             return new Block(statements);
         }
 
@@ -265,7 +265,6 @@ public static class Syn {
         // (based on parentheses and BinOp priority)
         int ternOpFirstIndex = -1;
         int ternOpSecondIndex = -1;
-        int ternOpLevel = 0;
         int binOpIndex = -1;
         int binOpPriority = Int32.MaxValue;
         int unOpIndex = -1;
@@ -290,15 +289,14 @@ public static class Syn {
             if (t.kind == Token.Kind.OPAR) parLevel++;
             else if (t.kind == Token.Kind.CPAR) parLevel--;
             else if (parLevel == 0 && isTernOpFirst(t)) {
-                ternOpLevel++;
                 if (ternOpFirstIndex < 0) ternOpFirstIndex = i;
+                else throw new Syn.Error("ambiguous syntax for ternary operator, add parentheses", t.loc);
             }
             else if (
-                parLevel == 0 && isTernOpSecond(t) 
-                && ternOpSecondIndex < 0 && ternOpFirstIndex >= 0
+                parLevel == 0 && ternOpFirstIndex >= 0 && isTernOpSecond(t) 
             ) {
-                ternOpLevel--;
-                if (ternOpLevel == 0) ternOpSecondIndex = i;
+                if (ternOpSecondIndex < 0) ternOpSecondIndex = i;
+                else throw new Syn.Error("ternary operator misses the first symbol", t.loc);
             }
             else if (parLevel == 0 && isBinOp(t)) {
                 // find BinOp at parentheses level 0 and lowest priority
