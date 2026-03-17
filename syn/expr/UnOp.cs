@@ -32,12 +32,12 @@ public class UnOp : Expr {
     }
 
     public static Kind kindFromToken(Token t) {
-        switch (t.kind) {
-            case Token.Kind.LOG: return Kind.LOG;
-            case Token.Kind.SIN: return Kind.SIN;
-            case Token.Kind.NEG: return Kind.NEG;
-            case Token.Kind.LEN: return Kind.LEN;
-            case Token.Kind.NOT: return Kind.NOT;
+        switch (t.raw) {
+            case Symbols.LOG: return Kind.LOG;
+            case Symbols.SIN: return Kind.SIN;
+            case Symbols.NEG: return Kind.NEG;
+            case Symbols.LEN: return Kind.LEN;
+            case Symbols.NOT: return Kind.NOT;
         }
         throw new Syn.Error("UnOp.kindFromToken unimplemented for '" + t.kind + "'", t.loc);
     }

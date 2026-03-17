@@ -17,9 +17,9 @@ public static class Syn {
         while (cursor < start + len) {
             Token curToken = tokens[cursor];
 
-            if (curToken.kind == Token.Kind.OPAR_CURLY) blockLevel++;
-            else if (curToken.kind == Token.Kind.CPAR_CURLY) blockLevel--;
-            else if (curToken.kind == Token.Kind.SEMICOLON && blockLevel == 0) {
+            if (curToken.raw == Symbols.OPAR_CURLY) blockLevel++;
+            else if (curToken.raw == Symbols.CPAR_CURLY) blockLevel--;
+            else if (curToken.raw == Symbols.SEMICOLON && blockLevel == 0) {
                 int stmtLen = cursor - stmtStart;
                 if (stmtLen > 0) {
                     Stmt s = parseStmt(tokens, stmtStart, stmtLen);
@@ -28,7 +28,7 @@ public static class Syn {
                 stmtStart = cursor + 1;
             }
 
-            if (curToken.kind == Token.Kind.OPAR_CURLY
+            if (curToken.raw == Symbols.OPAR_CURLY
                 && blockOparIndex < 0) blockOparIndex = cursor;
             if (blockLevel < 0) throw new Syn.Error("block never opened", curToken.loc);
 
@@ -49,12 +49,12 @@ public static class Syn {
     private static Stmt parseStmt(Token[] tokens, int start, int len) {
         Token firstToken = tokens[start];
 
-        if (firstToken.kind == Token.Kind.PUTC) {
+        if (firstToken.raw == Symbols.PUTC) {
             Expr expr = parseExpr(tokens, start + 1, len - 1);
             return new Putc(expr);
         }
 
-        if (firstToken.kind == Token.Kind.GETC) {
+        if (firstToken.raw == Symbols.GETC) {
             if (len < 2) throw new Syn.Error("missing argument", tokens[start].loc);
 
             if (tokens[start + 1].kind == Token.Kind.ID) {
@@ -68,7 +68,7 @@ public static class Syn {
 
         // Assignment to an id
         if (len > 2 && firstToken.kind == Token.Kind.ID
-        &&  tokens[start + 1].kind == Token.Kind.EQUALS) {
+        &&  tokens[start + 1].raw == Symbols.EQUALS) {
             Identifier id = new Identifier(firstToken.raw);
             Expr assignee = parseExpr(tokens, start + 2, len - 2);
             return new Assignment(id, assignee);
@@ -77,10 +77,10 @@ public static class Syn {
         // Assignment to an array slot
         if (len > 1
             && firstToken.kind == Token.Kind.ID
-            && tokens[start + 1].kind == Token.Kind.OPAR_SQUARE
+            && tokens[start + 1].raw == Symbols.OPAR_SQUARE
         ) {
             int assignIndex = start;
-            while (assignIndex < start+len && tokens[assignIndex].kind != Token.Kind.EQUALS) assignIndex++;
+            while (assignIndex < start+len && tokens[assignIndex].raw != Symbols.EQUALS) assignIndex++;
             if (assignIndex < start + len) {
                 if (assignIndex == start+len-1) throw new Syn.Error("missing assignee", tokens[len-1].loc);
 
@@ -96,15 +96,15 @@ public static class Syn {
         }
 
         // Print
-        if (len > 1 && firstToken.kind == Token.Kind.PRINT) {
+        if (len > 1 && firstToken.raw == Symbols.PRINT) {
             Expr expr = parseExpr(tokens, start + 1, len - 1);
             return new Print(expr);
         }
 
         // ArrayDecl
-        if (tokens[start].kind == Token.Kind.OPAR_SQUARE) {
+        if (tokens[start].raw == Symbols.OPAR_SQUARE) {
             int cparIndex = nextMatching(
-                Token.Kind.OPAR_SQUARE, Token.Kind.CPAR_SQUARE,
+                Symbols.OPAR_SQUARE, Symbols.CPAR_SQUARE,
                 tokens, start, len
             );
             if (cparIndex + 1 < start + len
@@ -128,10 +128,10 @@ public static class Syn {
                     return new ArrayDecl(id, capacity);
 
                 int equalsIndex = cparIndex + 2;
-                if (tokens[equalsIndex].kind == Token.Kind.EQUALS) {
+                if (tokens[equalsIndex].raw == Symbols.EQUALS) {
                     int arrayStart = equalsIndex + 1;
                     if (arrayStart < start + len
-                        && tokens[arrayStart].kind != Token.Kind.OPAR_SQUARE
+                        && tokens[arrayStart].raw != Symbols.OPAR_SQUARE
                     ) throw new Syn.Error("expected [", tokens[arrayStart].loc);
 
                     if (arrayStart >= start + len)
@@ -145,12 +145,12 @@ public static class Syn {
         }
 
         // While
-        if (len > 0 && firstToken.kind == Token.Kind.WHILE) {
-            int cursor = next(Token.Kind.OPAR_CURLY, tokens, start, len);
+        if (len > 0 && firstToken.raw == Symbols.WHILE) {
+            int cursor = next(Symbols.OPAR_CURLY, tokens, start, len);
 
             if (cursor >= start + len) 
                 throw new Syn.Error("missing block after condition", tokens[cursor - 1].loc);
-            if (tokens[start + len - 1].kind != Token.Kind.CPAR_CURLY)
+            if (tokens[start + len - 1].raw != Symbols.CPAR_CURLY)
                 throw new Syn.Error("open block never closed", tokens[cursor].loc);
 
             Expr cond = parseExpr(tokens, start + 1, cursor - start - 1);
@@ -164,15 +164,15 @@ public static class Syn {
 
         // Block
         if (
-            len > 1 && tokens[start].kind == Token.Kind.OPAR_CURLY
-            && tokens[start + len - 1].kind == Token.Kind.CPAR_CURLY
+            len > 1 && tokens[start].raw == Symbols.OPAR_CURLY
+            && tokens[start + len - 1].raw == Symbols.CPAR_CURLY
         ) {
             List<Stmt> statements = parseStmtList(tokens, start + 1, len - 2);
             return new Block(statements);
         }
 
         // IfElse
-        if (len > 0 && firstToken.kind == Token.Kind.IF)
+        if (len > 0 && firstToken.raw == Symbols.IF)
             return parseIfElse(tokens, start, len);
 
 
@@ -182,14 +182,14 @@ public static class Syn {
     }
 
     private static IfElse parseIfElse(Token[] tokens, int start, int len) {
-        int blockOpar = next(Token.Kind.OPAR_CURLY, tokens, start, len);
+        int blockOpar = next(Symbols.OPAR_CURLY, tokens, start, len);
         if (blockOpar >= start + len)
             throw new Syn.Error("missing block after condition", tokens[blockOpar - 1].loc);
 
         Expr cond = parseExpr(tokens, start + 1, blockOpar - start - 1);
 
         int blockCpar = nextMatching(
-            Token.Kind.OPAR_CURLY, Token.Kind.CPAR_CURLY,
+            Symbols.OPAR_CURLY, Symbols.CPAR_CURLY,
             tokens, blockOpar, start + len - blockOpar
         );
         int stmtListStart = blockOpar + 1;
@@ -200,18 +200,18 @@ public static class Syn {
         if (blockCpar + 1 == start + len)
             return new IfElse(cond, ifTrue, null);
 
-        if (tokens[blockCpar + 1].kind != Token.Kind.ELSE)
+        if (tokens[blockCpar + 1].raw != Symbols.ELSE)
             throw new Syn.Error("expected else or ;", tokens[blockCpar + 1].loc);
         if (blockCpar + 2 >= start + len)
             throw new Syn.Error("else is incomplete", tokens[blockCpar + 1].loc);
-        if (tokens[blockCpar + 2].kind != Token.Kind.OPAR_CURLY
-            && tokens[blockCpar + 2].kind != Token.Kind.IF
+        if (tokens[blockCpar + 2].raw != Symbols.OPAR_CURLY
+            && tokens[blockCpar + 2].raw != Symbols.IF
         ) throw new Syn.Error("expected if or {", tokens[blockCpar + 2].loc);
 
-        if (tokens[blockCpar + 2].kind == Token.Kind.OPAR_CURLY) {
+        if (tokens[blockCpar + 2].raw == Symbols.OPAR_CURLY) {
             blockOpar = blockCpar + 2;
             blockCpar = nextMatching(
-                Token.Kind.OPAR_CURLY, Token.Kind.CPAR_CURLY,
+                Symbols.OPAR_CURLY, Symbols.CPAR_CURLY,
                 tokens, blockOpar, start + len - blockOpar
             );
             stmtListStart = blockOpar + 1;
@@ -221,7 +221,7 @@ public static class Syn {
             );
             return new IfElse(cond, ifTrue, ifFalse);
         }
-        else if (tokens[blockCpar + 2].kind == Token.Kind.IF) {
+        else if (tokens[blockCpar + 2].raw == Symbols.IF) {
             int elseIfStart = blockCpar + 2;
             int elseIfLen = start + len - elseIfStart;
             IfElse elseIf = parseIfElse(tokens, elseIfStart, elseIfLen);
@@ -238,7 +238,7 @@ public static class Syn {
         int exprStart = start;
         while (cursor < start + len
         ) {
-            if (tokens[cursor].kind == Token.Kind.COMMA) {
+            if (tokens[cursor].raw == Symbols.COMMA) {
                 int exprLen = cursor - exprStart;
                 if (exprLen < 1) throw new Syn.Error("missing expression", tokens[cursor].loc);
                 Expr expr = parseExpr(tokens, exprStart, exprLen);
@@ -274,9 +274,9 @@ public static class Syn {
         for (int i = start; i < start+len; i++) {
             Token t = tokens[i];
 
-            if (t.kind == Token.Kind.OPAR_SQUARE) {
+            if (t.raw == Symbols.OPAR_SQUARE) {
                 i = nextMatching(
-                    Token.Kind.OPAR_SQUARE, Token.Kind.CPAR_SQUARE,
+                    Symbols.OPAR_SQUARE, Symbols.CPAR_SQUARE,
                     tokens, start, len
                 );
                 i++;
@@ -284,10 +284,10 @@ public static class Syn {
                 t = tokens[i];
             }
 
-            if (t.kind == Token.Kind.OPAR && parLevel == 0) firstOparIndex = i;
+            if (t.raw == Symbols.OPAR && parLevel == 0) firstOparIndex = i;
 
-            if (t.kind == Token.Kind.OPAR) parLevel++;
-            else if (t.kind == Token.Kind.CPAR) parLevel--;
+            if (t.raw == Symbols.OPAR) parLevel++;
+            else if (t.raw == Symbols.CPAR) parLevel--;
             else if (parLevel == 0 && isTernOpFirst(t)) {
                 if (ternOpFirstIndex < 0) ternOpFirstIndex = i;
                 else throw new Syn.Error("ambiguous syntax for ternary operator, add parentheses", t.loc);
@@ -330,18 +330,18 @@ public static class Syn {
         }
 
         // LiteralArray
-        if (firstToken.kind == Token.Kind.OPAR_SQUARE) 
+        if (firstToken.raw == Symbols.OPAR_SQUARE) 
             return parseLiteralArray(tokens, start, len);
 
         // IndexedArray
         if (len > 2
             && firstToken.kind == Token.Kind.ID
-            && tokens[start + 1].kind == Token.Kind.OPAR_SQUARE
+            && tokens[start + 1].raw == Symbols.OPAR_SQUARE
         ) return parseIndexedArray(tokens, start, len);
 
         // parentheses removal
-        if (firstToken.kind == Token.Kind.OPAR &&
-            lastToken.kind  == Token.Kind.CPAR
+        if (firstToken.raw == Symbols.OPAR &&
+            lastToken.raw  == Symbols.CPAR
         ) return parseExpr(tokens, start + 1, len - 2);
         
         // parse Literal
@@ -360,13 +360,13 @@ public static class Syn {
     private static IndexedArray parseIndexedArray(Token[] tokens, int start, int len) {
         if (tokens[start].kind != Token.Kind.ID)
             throw new Syn.Error("should be an identifier", tokens[start].loc);
-        if (len > 1 && tokens[start + 1].kind != Token.Kind.OPAR_SQUARE)
+        if (len > 1 && tokens[start + 1].raw != Symbols.OPAR_SQUARE)
             throw new Syn.Error("expected [", tokens[start].loc);
-        if (tokens[start + len - 1].kind != Token.Kind.CPAR_SQUARE)
+        if (tokens[start + len - 1].raw != Symbols.CPAR_SQUARE)
             throw new Syn.Error("expected ]", tokens[start + len - 1].loc);
 
         int cparIndex = nextMatching(
-            Token.Kind.OPAR_SQUARE, Token.Kind.CPAR_SQUARE,
+            Symbols.OPAR_SQUARE, Symbols.CPAR_SQUARE,
             tokens, start + 1, len - 1
         );
         if (cparIndex + 1 < start + len)
@@ -378,11 +378,11 @@ public static class Syn {
     }
 
     private static LiteralArray parseLiteralArray(Token[] tokens, int start, int len) {
-        if (tokens[start].kind != Token.Kind.OPAR_SQUARE)
+        if (tokens[start].raw != Symbols.OPAR_SQUARE)
             throw new Syn.Error("expected [", tokens[start].loc);
 
         int cparIndex = nextMatching(
-            Token.Kind.OPAR_SQUARE, Token.Kind.CPAR_SQUARE,
+            Symbols.OPAR_SQUARE, Symbols.CPAR_SQUARE,
             tokens, start, len
         );
 
@@ -435,64 +435,73 @@ public static class Syn {
     }
 
     private static bool isUnOp(Token t) {
-        switch (t.kind) {
-            case Token.Kind.LOG:
-            case Token.Kind.SIN:
-            case Token.Kind.NEG:
-            case Token.Kind.LEN:
-            case Token.Kind.NOT:
+        switch (t.raw) {
+            case Symbols.LOG:
+            case Symbols.SIN:
+            case Symbols.NEG:
+            case Symbols.LEN:
+            case Symbols.NOT:
             return true;
         }
         return false;
     }
 
     private static bool isBinOp(Token t) {
-        switch (t.kind) {
-            case Token.Kind.PLUS_SIGN:
-            case Token.Kind.PLUS:
-            case Token.Kind.DASH:
-            case Token.Kind.MINUS:
-            case Token.Kind.SLASH:
-            case Token.Kind.BY:
-            case Token.Kind.ASTERISK:
-            case Token.Kind.TIMES:
-            case Token.Kind.CARET:
-            case Token.Kind.OPAR_ANG:
-            case Token.Kind.CPAR_ANG:
-            case Token.Kind.AND:
-            case Token.Kind.OR:
-            case Token.Kind.PERCENT:
-            case Token.Kind.DOUBLE_EQUALS:
+        switch (t.raw) {
+            case Symbols.PLUS_SIGN:
+            case Symbols.PLUS:
+            case Symbols.DASH:
+            case Symbols.MINUS:
+            case Symbols.SLASH:
+            case Symbols.BY:
+            case Symbols.ASTERISK:
+            case Symbols.TIMES:
+            case Symbols.CARET:
+            case Symbols.OPAR_ANG:
+            case Symbols.CPAR_ANG:
+            case Symbols.AND:
+            case Symbols.OR:
+            case Symbols.PERCENT:
+            case Symbols.DOUBLE_EQUALS:
             return true;
         }
         return false;
     }
 
     private static bool isTernOpFirst(Token t) {
-        return t.kind == Token.Kind.QUESTION_MARK;
+        return t.raw == Symbols.QUESTION_MARK;
     }
 
     private static bool isTernOpSecond(Token t) {
-        return t.kind == Token.Kind.COLON;
+        return t.raw == Symbols.COLON;
     }
 
-    private static int next(Token.Kind kind, Token[] tokens, int start, int len) {
+    // private static int next(Token.Kind kind, Token[] tokens, int start, int len) {
+    //     int cursor = start;
+    //     while (
+    //         cursor < start + len
+    //         && tokens[cursor].kind != kind
+    //     ) cursor++;
+    //     return cursor;
+    // }
+
+    private static int next(string symbol, Token[] tokens, int start, int len) {
         int cursor = start;
         while (
             cursor < start + len
-            && tokens[cursor].kind != kind
+            && tokens[cursor].raw != symbol
         ) cursor++;
         return cursor;
     }
 
-    private static int nextMatching(Token.Kind begin, Token.Kind end, Token[] tokens, int start, int len) {
+    private static int nextMatching(string begin, string end, Token[] tokens, int start, int len) {
         int parLevel = 0;
         int cursor = start;
         while (cursor < start + len) {
-            if (tokens[cursor].kind == begin) parLevel++;
-            else if (tokens[cursor].kind == end) parLevel--;
+            if (tokens[cursor].raw == begin) parLevel++;
+            else if (tokens[cursor].raw == end) parLevel--;
 
-            if (parLevel == 0 && tokens[cursor].kind == end) break;
+            if (parLevel == 0 && tokens[cursor].raw == end) break;
             else if (parLevel < 0) 
                 throw new Syn.Error("never opened", tokens[cursor].loc);
             cursor++;

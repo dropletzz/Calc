@@ -1,11 +1,14 @@
+using System.Reflection;
+
 // Lexical analyzer
 public static class Lex {
 
-    public static readonly string[] SYMBOLS = {
-        "+", "plus", "-", "minus", "*", "times", "/", "by", "?", "%", ":=", ":", ";",
-        "^", "log", "sin", "neg", "not", "(", ")", "==", "=", "<", ">", "and", "or", "print",
-        "while", "{", "}", "[", "]", "if", "else", "len", "getc", "putc", ","
-    };
+    public static readonly string[] SYMBOLS = typeof(Symbols)
+        .GetFields(BindingFlags.Public | BindingFlags.Static)
+        .Where(f => f.FieldType == typeof(string))
+        .Select(f => (string)f.GetValue(null)!)
+        .OrderByDescending(s => s.Length)
+        .ToArray();
 
     public static readonly int MAX_TOKENS_LENGTH = 1024 * 1024;
 
@@ -40,7 +43,9 @@ public static class Lex {
                 }
                 if (found) {
                     string rawToken = s.Substring(position, sym.Length);
-                    tokens[tokensLength] = parseSymbol(rawToken, new Location(line, linePosition()));
+                    tokens[tokensLength] = Token.symbol(
+                        rawToken, new Location(line, linePosition())
+                    );
                     tokensLength++;
                     position += sym.Length;
                     break;
@@ -73,7 +78,9 @@ public static class Lex {
 
                 if (position > startPosition) {
                     string rawToken = s.Substring(startPosition, position - startPosition);
-                    tokens[tokensLength] = parseIdentifier(rawToken, new Location(startLine, startLinePosition));
+                    tokens[tokensLength] = Token.identifier(
+                        rawToken, new Location(startLine, startLinePosition)
+                    );
                     tokensLength++;
                     found = true;
                 }
@@ -93,57 +100,6 @@ public static class Lex {
         if (!isNumber) throw new Lex.Error("Couldn't parse number", loc);
         return Token.number(rawToken, value, loc);
     }
-
-    private static Token parseIdentifier(string rawToken, Location loc) {
-        return Token.identifier(rawToken, loc);
-    }
-
-    private static Token parseSymbol(string rawToken, Location loc) {
-        Token.Kind kind;
-        switch (rawToken) {
-            case "+":     kind = Token.Kind.PLUS_SIGN; break;
-            case "plus":  kind = Token.Kind.PLUS; break;
-            case "-":     kind = Token.Kind.DASH; break;
-            case "minus": kind = Token.Kind.MINUS; break;
-            case "*":     kind = Token.Kind.ASTERISK; break;
-            case "times": kind = Token.Kind.TIMES; break;
-            case "/":     kind = Token.Kind.SLASH; break;
-            case "by":    kind = Token.Kind.BY; break;
-            case "^":     kind = Token.Kind.CARET; break;
-            case "log":   kind = Token.Kind.LOG; break;
-            case "sin":   kind = Token.Kind.SIN; break;
-            case "(":     kind = Token.Kind.OPAR; break;
-            case ")":     kind = Token.Kind.CPAR; break;
-            case "=":     kind = Token.Kind.EQUALS; break;
-            case "==":    kind = Token.Kind.DOUBLE_EQUALS; break;
-            case "%":     kind = Token.Kind.PERCENT; break;
-            case "<":     kind = Token.Kind.OPAR_ANG; break;
-            case ">":     kind = Token.Kind.CPAR_ANG; break;
-            case "?":     kind = Token.Kind.QUESTION_MARK; break;
-            case ":":     kind = Token.Kind.COLON; break;
-            case ";":     kind = Token.Kind.SEMICOLON; break;
-            case "and":   kind = Token.Kind.AND; break;
-            case "or":    kind = Token.Kind.OR; break;
-            case "neg":   kind = Token.Kind.NEG; break;
-            case "not":   kind = Token.Kind.NOT; break;
-            case "{":    kind = Token.Kind.OPAR_CURLY; break;
-            case "}":    kind = Token.Kind.CPAR_CURLY; break;
-            case "[":    kind = Token.Kind.OPAR_SQUARE; break;
-            case "]":    kind = Token.Kind.CPAR_SQUARE; break;
-            case "if":    kind = Token.Kind.IF; break;
-            case "else":    kind = Token.Kind.ELSE; break;
-            case "len":    kind = Token.Kind.LEN; break;
-            case "print":    kind = Token.Kind.PRINT; break;
-            case "while":    kind = Token.Kind.WHILE; break;
-            case "getc":    kind = Token.Kind.GETC; break;
-            case "putc":    kind = Token.Kind.PUTC; break;
-            case ",":    kind = Token.Kind.COMMA; break;
-            default: throw new Lex.Error("parseSymbol undefined for '" + rawToken + "'", loc);
-        }
-
-        return Token.symbol(kind, rawToken, loc);
-    }
-
 
     private static bool isDigit(char c) {
         return c >= '0' && c <= '9';

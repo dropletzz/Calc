@@ -41,18 +41,18 @@ public class BinOp : Expr {
     }
 
     public static Kind kindFromToken(Token t) {
-        switch (t.kind) {
-            case Token.Kind.PLUS_SIGN: case Token.Kind.PLUS: return Kind.SUM;
-            case Token.Kind.DASH: case Token.Kind.MINUS:     return Kind.SUB;
-            case Token.Kind.ASTERISK: case Token.Kind.TIMES: return Kind.MUL;
-            case Token.Kind.SLASH: case Token.Kind.BY:       return Kind.DIV;
-            case Token.Kind.CARET:                           return Kind.POW;
-            case Token.Kind.OPAR_ANG:                        return Kind.LT;
-            case Token.Kind.CPAR_ANG:                        return Kind.GT;
-            case Token.Kind.AND:                             return Kind.AND;
-            case Token.Kind.OR:                              return Kind.OR;
-            case Token.Kind.DOUBLE_EQUALS:                   return Kind.EQ;
-            case Token.Kind.PERCENT:                         return Kind.MOD;
+        switch (t.raw) {
+            case Symbols.PLUS_SIGN: case Symbols.PLUS: return Kind.SUM;
+            case Symbols.DASH: case Symbols.MINUS:     return Kind.SUB;
+            case Symbols.ASTERISK: case Symbols.TIMES: return Kind.MUL;
+            case Symbols.SLASH: case Symbols.BY:       return Kind.DIV;
+            case Symbols.CARET:                           return Kind.POW;
+            case Symbols.OPAR_ANG:                        return Kind.LT;
+            case Symbols.CPAR_ANG:                        return Kind.GT;
+            case Symbols.AND:                             return Kind.AND;
+            case Symbols.OR:                              return Kind.OR;
+            case Symbols.DOUBLE_EQUALS:                   return Kind.EQ;
+            case Symbols.PERCENT:                         return Kind.MOD;
         }
         throw new Syn.Error("BinOp.kindFromToken unimplemented for '" + t.kind + "'", t.loc);
     }
