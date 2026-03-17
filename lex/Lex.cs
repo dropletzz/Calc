@@ -21,12 +21,34 @@ public static class Lex {
         Token[] tokens = new Token[MAX_TOKENS_LENGTH];
         tokensLength = 0;
 
-        chompWhitespace(s);
-
         while (position < s.Length) {
+            chompWhitespace(s);
+
             bool found = false;
             if (tokensLength >= MAX_TOKENS_LENGTH)
                 throw new Lex.Error("Too many tokens, max is " + MAX_TOKENS_LENGTH, new Location(line, linePosition()));
+
+            // look for an identifier
+            {
+                int startPosition = position;
+                int startLinePosition = linePosition();
+                int startLine = line;
+                chompIdentifier(s);
+
+                if (position > startPosition) {
+                    string rawToken = s.Substring(startPosition, position - startPosition);
+                    if (SYMBOLS.Contains(rawToken)) {
+                        position = startPosition;
+                        line = startLine;
+                        found = false;
+                    } else {
+                        tokens[tokensLength] = parseIdentifier(rawToken, new Location(startLine, startLinePosition));
+                        tokensLength++;
+                        found = true;
+                        continue;
+                    }
+                }
+            }
 
             // look for a symbol
             foreach (string sym in SYMBOLS) {
@@ -64,23 +86,7 @@ public static class Lex {
                 }
             }
 
-            // look for an identifier
-            if (!found) {
-                int startPosition = position;
-                int startLinePosition = linePosition();
-                int startLine = line;
-                chompIdentifier(s);
-
-                if (position > startPosition) {
-                    string rawToken = s.Substring(startPosition, position - startPosition);
-                    tokens[tokensLength] = parseIdentifier(rawToken, new Location(startLine, startLinePosition));
-                    tokensLength++;
-                    found = true;
-                }
-            }
-
             if (!found) throw new Lex.Error("Couldn't parse token", new Location(line, linePosition()));
-
             chompWhitespace(s);
         }
 
@@ -161,18 +167,21 @@ public static class Lex {
         return isDigit(c) || isAlpha(c);
     }
 
+    // this function feels like a bad hack
     private static void checkNewline(string s) {
+        bool crlf = false;
         char c = s[position];
         int newLineLen = 0;
         if (c == '\n') newLineLen = 1;
         else if (c == '\r') {
-            bool crlf = position + 1 < s.Length && s[position + 1] == '\n';
+            crlf = position + 1 < s.Length && s[position + 1] == '\n';
             newLineLen = crlf ? 2 : 1;
         }
 
         if (newLineLen > 0) {
             line++;
             lastLinePosition = position + newLineLen;
+            if (crlf) position++;
         }
     }
 
