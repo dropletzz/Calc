@@ -265,7 +265,6 @@ public static class Syn {
         // (based on parentheses and BinOp priority)
         int ternOpFirstIndex = -1;
         int ternOpSecondIndex = -1;
-        int ternOpLevel = 0;
         int binOpIndex = -1;
         int binOpPriority = Int32.MaxValue;
         int unOpIndex = -1;
@@ -290,15 +289,14 @@ public static class Syn {
             if (t.kind == Token.Kind.OPAR) parLevel++;
             else if (t.kind == Token.Kind.CPAR) parLevel--;
             else if (parLevel == 0 && isTernOpFirst(t)) {
-                ternOpLevel++;
                 if (ternOpFirstIndex < 0) ternOpFirstIndex = i;
+                else throw new Syn.Error("ambiguous syntax for ternary operator, add parentheses", t.loc);
             }
             else if (
-                parLevel == 0 && isTernOpSecond(t) 
-                && ternOpSecondIndex < 0 && ternOpFirstIndex >= 0
+                parLevel == 0 && ternOpFirstIndex >= 0 && isTernOpSecond(t) 
             ) {
-                ternOpLevel--;
-                if (ternOpLevel == 0) ternOpSecondIndex = i;
+                if (ternOpSecondIndex < 0) ternOpSecondIndex = i;
+                else throw new Syn.Error("ternary operator misses the first symbol", t.loc);
             }
             else if (parLevel == 0 && isBinOp(t)) {
                 // find BinOp at parentheses level 0 and lowest priority
